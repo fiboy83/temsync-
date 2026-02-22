@@ -11,11 +11,25 @@ export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Function to change the global theme based on a hue
+  const updateGlobalTheme = (hue: number) => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary', `${hue} 100% 64%`);
+    root.style.setProperty('--secondary', `${(hue + 180) % 360} 100% 50%`);
+    root.style.setProperty('--accent', `${(hue + 180) % 360} 100% 50%`);
+    root.style.setProperty('--ring', `${hue} 100% 64%`);
+  };
+
   useEffect(() => {
     async function loadPosts() {
       try {
         const dummyPosts = await generateInitialDummyPosts();
         setPosts(dummyPosts);
+        
+        // Initially set theme to match the first post's user
+        if (dummyPosts.length > 0) {
+          updateGlobalTheme(dummyPosts[0].themeHue);
+        }
       } catch (error) {
         console.error("Failed to load posts:", error);
       } finally {
@@ -26,7 +40,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-28">
+    <main className="min-h-screen pt-14 pb-16 md:pt-16 md:pb-20 transition-colors duration-700">
       <TopNav />
       
       <div className="max-w-lg mx-auto px-4 w-full">
@@ -34,18 +48,23 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
             <p className="font-headline text-primary font-medium tracking-widest uppercase text-[10px]">
-              Initializing Holographic Feed...
+              Syncing Reality...
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {posts.map((post, index) => (
-              <PostCard key={post.id} post={post} index={index} />
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                index={index} 
+                onProfileClick={updateGlobalTheme}
+              />
             ))}
             
             {posts.length === 0 && !loading && (
               <div className="text-center py-20">
-                <p className="text-foreground/50 text-sm">No posts found in this reality.</p>
+                <p className="text-foreground/50 text-sm">The multiverse is empty.</p>
               </div>
             )}
           </div>

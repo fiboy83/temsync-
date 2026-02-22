@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview This file contains the Genkit flow for generating initial dummy social media posts with holographic themes.
+ * @fileOverview This file contains the Genkit flow for generating initial dummy social media posts with holographic themes and unique color profiles.
  */
 
 import { ai } from '@/ai/genkit';
@@ -15,6 +15,7 @@ const PostSchema = z.object({
   likes: z.number().describe('Number of likes.'),
   comments: z.number().describe('Number of comments.'),
   timestamp: z.string().describe('Timestamp in ISO format.'),
+  themeHue: z.number().describe('The base hue for this user profile (0-360).'),
 });
 
 export type Post = z.infer<typeof PostSchema>;
@@ -22,9 +23,7 @@ export type Post = z.infer<typeof PostSchema>;
 const PostDraftSchema = z.object({
   id: z.string(),
   username: z.string(),
-  profilePictureDescription: z.string(),
   postContent: z.string(),
-  imageDescription: z.string(),
   likes: z.number(),
   comments: z.number(),
   timestamp: z.string(),
@@ -37,9 +36,8 @@ const generateInitialDummyPostsFlow = ai.defineFlow(
     outputSchema: z.array(PostSchema),
   },
   async () => {
-    // 1. Generate post contents and descriptions using text model (which is usually available on free tier)
     const { output } = await ai.generate({
-      prompt: 'Generate 5 unique social media post ideas for a futuristic holographic app called "temsync". Ensure diverse usernames and modern, ethereal themes.',
+      prompt: 'Generate 5 unique social media post ideas for a futuristic holographic app called "temsync". Use ethereal, digital, and space-age themes.',
       output: {
         schema: z.object({ posts: z.array(PostDraftSchema) })
       }
@@ -51,21 +49,23 @@ const generateInitialDummyPostsFlow = ai.defineFlow(
 
     const posts: Post[] = [];
 
-    // 2. Use high-quality placeholders instead of Imagen to avoid billing errors
     for (const draft of output.posts) {
-      // Use seeded placeholders for consistency
+      // Assign a consistent hue based on username string to simulate profile color
+      let hash = 0;
+      for (let i = 0; i < draft.username.length; i++) {
+        hash = draft.username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const themeHue = Math.abs(hash % 360);
+
       const mainImageUrl = `https://picsum.photos/seed/${draft.id}/600/800`;
       const profileImageUrl = `https://picsum.photos/seed/${draft.username}/100/100`;
 
       posts.push({
-        id: draft.id,
-        username: draft.username,
+        ...draft,
         profilePicture: profileImageUrl,
         content: draft.postContent,
         imageUrl: mainImageUrl,
-        likes: draft.likes,
-        comments: draft.comments,
-        timestamp: draft.timestamp,
+        themeHue: themeHue,
       });
     }
 
