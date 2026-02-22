@@ -23,14 +23,14 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
           <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
             <ShoppingBag className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
-          <span className="text-[6px] font-bold lowercase tracking-widest opacity-80 group-hover:opacity-100" style={{ color: hueColor }}>market</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>market</span>
         </button>
 
         <button className="flex flex-col items-center group py-1 px-2">
           <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
             <Repeat className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
-          <span className="text-[6px] font-bold lowercase tracking-widest opacity-80 group-hover:opacity-100" style={{ color: hueColor }}>swap</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>swap</span>
         </button>
 
         <button 
@@ -48,7 +48,7 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
           <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
             <Mail className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
-          <span className="text-[6px] font-bold lowercase tracking-widest opacity-80 group-hover:opacity-100" style={{ color: hueColor }}>inbox</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>inbox</span>
         </button>
 
         <button 
@@ -58,7 +58,7 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
           <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
             <UserIcon className="w-3.5 h-3.5" color={hueColor} />
           </div>
-          <span className="text-[6px] font-bold lowercase tracking-widest opacity-80 group-hover:opacity-100" style={{ color: hueColor }}>profile</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>profile</span>
         </button>
       </div>
     </nav>
