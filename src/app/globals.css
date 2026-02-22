@@ -58,7 +58,7 @@
 }
 
 .animate-gradient-x {
-  animation: gradient-x 30s ease infinite;
+  animation: gradient-x 120s ease infinite;
 }
 
 @keyframes fade-in {
