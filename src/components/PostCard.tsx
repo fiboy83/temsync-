@@ -7,6 +7,7 @@ import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import type { UserProfile } from '@/app/page';
 
 interface Comment {
   id: string;
@@ -15,12 +16,13 @@ interface Comment {
   timestamp: string;
   likes?: number;
   isLiked?: boolean;
+  themeHue: number;
 }
 
 interface PostCardProps {
   post: Post;
   index: number;
-  currentUser?: { username: string };
+  currentUser?: UserProfile;
 }
 
 export function PostCard({ post, index, currentUser }: PostCardProps) {
@@ -76,6 +78,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       timestamp: new Date().toISOString(),
       likes: 0,
       isLiked: false,
+      themeHue: currentUser?.themeHue ?? 266, // Default to indigo if not set
     };
 
     const updatedComments = [...localComments, comment];
@@ -258,52 +261,57 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         </button>
       </div>
 
-      {/* Comment Section with Aura */}
+      {/* Comment Section with Individual Auras */}
       {showComments && (
         <div 
           className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300 border-t"
           style={{ borderColor: hueColorDeepMuted }}
         >
           <div className="max-h-64 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left scroll-smooth">
-            {localComments.map((comment) => (
-              <div key={comment.id} className="flex flex-col gap-1 group/comment focus-within:ring-1 focus-within:ring-white/10 rounded-2xl p-1 transition-all">
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: hueColor }}>{comment.username}</span>
-                  <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <div 
-                  className="text-xs text-white/70 bg-white/5 p-3 rounded-2xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
-                  style={{ borderColor: hueColorMuted }}
-                >
-                  {comment.text}
-                  
-                  {/* Comment Interaction Bar */}
-                  <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => handleCommentLike(comment.id)}
-                      className="flex items-center gap-1.5 hover:scale-110 transition-transform"
-                    >
-                      <Heart 
-                        className={cn("w-3 h-3", comment.isLiked && "fill-current")} 
-                        style={{ color: comment.isLiked ? hueColor : 'white' }} 
-                      />
-                      {comment.likes && comment.likes > 0 ? (
-                        <span className="text-[8px] font-bold" style={{ color: comment.isLiked ? hueColor : 'white' }}>{comment.likes}</span>
-                      ) : null}
-                    </button>
+            {localComments.map((comment) => {
+              const commentHueColor = `hsl(${comment.themeHue}, 100%, 64%)`;
+              const commentHueColorMuted = `hsl(${comment.themeHue}, 100%, 64%, 0.2)`;
+              
+              return (
+                <div key={comment.id} className="flex flex-col gap-1 group/comment focus-within:ring-1 focus-within:ring-white/10 rounded-2xl p-1 transition-all">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: commentHueColor }}>{comment.username}</span>
+                    <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <div 
+                    className="text-xs text-white/70 bg-white/5 p-3 rounded-2xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
+                    style={{ borderColor: commentHueColorMuted }}
+                  >
+                    {comment.text}
                     
-                    <button className="flex items-center gap-1.5 hover:scale-110 transition-transform">
-                      <Reply className="w-3 h-3 text-white" />
-                      <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Reply</span>
-                    </button>
-                    
-                    <button className="flex items-center gap-1.5 hover:scale-110 transition-transform ml-auto">
-                      <Share2 className="w-3 h-3 text-white opacity-50" />
-                    </button>
+                    {/* Comment Interaction Bar with Commenter's Color */}
+                    <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleCommentLike(comment.id)}
+                        className="flex items-center gap-1.5 hover:scale-110 transition-transform"
+                      >
+                        <Heart 
+                          className={cn("w-3 h-3", comment.isLiked && "fill-current")} 
+                          style={{ color: comment.isLiked ? commentHueColor : 'white' }} 
+                        />
+                        {comment.likes && comment.likes > 0 ? (
+                          <span className="text-[8px] font-bold" style={{ color: comment.isLiked ? commentHueColor : 'white' }}>{comment.likes}</span>
+                        ) : null}
+                      </button>
+                      
+                      <button className="flex items-center gap-1.5 hover:scale-110 transition-transform">
+                        <Reply className="w-3 h-3 text-white" />
+                        <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Reply</span>
+                      </button>
+                      
+                      <button className="flex items-center gap-1.5 hover:scale-110 transition-transform ml-auto">
+                        <Share2 className="w-3 h-3 text-white opacity-50" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {localComments.length === 0 && (
               <p className="text-[10px] text-white/20 text-center py-6 italic uppercase tracking-widest">
                 Aura is silent. Sync a thought...
@@ -319,13 +327,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="h-10 text-xs bg-white/5 border-white/10 rounded-2xl focus:ring-1 focus:ring-offset-0 pr-10"
                 style={{ 
-                  '--tw-ring-color': hueColorMuted,
-                  borderColor: newComment.trim() ? hueColorMuted : undefined 
+                  '--tw-ring-color': `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.2)`,
+                  borderColor: newComment.trim() ? `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.2)` : undefined 
                 } as React.CSSProperties}
               />
               <div 
                 className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 opacity-20"
-                style={{ boxShadow: newComment.trim() ? `inset 0 0 10px ${hueColor}` : 'none' }}
+                style={{ boxShadow: newComment.trim() ? `inset 0 0 10px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)` : 'none' }}
               />
             </div>
             <Button 
@@ -333,8 +341,8 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               size="icon" 
               className="h-10 w-10 rounded-2xl shadow-lg transition-all active:scale-90 disabled:opacity-30"
               style={{ 
-                backgroundColor: hueColor,
-                boxShadow: newComment.trim() ? `0 4px 12px -2px hsl(${post.themeHue}, 100%, 64%, 0.4)` : 'none'
+                backgroundColor: `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)`,
+                boxShadow: newComment.trim() ? `0 4px 12px -2px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.4)` : 'none'
               }}
               disabled={!newComment.trim()}
             >
