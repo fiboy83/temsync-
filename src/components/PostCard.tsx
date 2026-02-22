@@ -2,33 +2,47 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Send } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+interface Comment {
+  id: string;
+  username: string;
+  text: string;
+  timestamp: string;
+}
 
 interface PostCardProps {
   post: Post;
   index: number;
   onProfileClick?: (hue: number) => void;
+  currentUser?: { username: string };
 }
 
-export function PostCard({ post, index, onProfileClick }: PostCardProps) {
+export function PostCard({ post, index, onProfileClick, currentUser }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
-  const [isCommented, setIsCommented] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [localComments, setLocalComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
 
-  // Load interactions from localStorage
+  // Load interactions and comments from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(`temsync_post_${post.id}`);
-    if (saved) {
-      const data = JSON.parse(saved);
-      setIsLiked(data.liked || false);
-      setIsCommented(data.commented || false);
+    const savedData = localStorage.getItem(`temsync_post_interaction_${post.id}`);
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setIsLiked(parsed.liked || false);
+      setLocalComments(parsed.comments || []);
     }
   }, [post.id]);
 
-  // Persist interactions to localStorage
-  const saveInteraction = (liked: boolean, commented: boolean) => {
-    localStorage.setItem(`temsync_post_${post.id}`, JSON.stringify({ liked, commented }));
+  const saveToLocal = (liked: boolean, comments: Comment[]) => {
+    localStorage.setItem(`temsync_post_interaction_${post.id}`, JSON.stringify({
+      liked,
+      comments
+    }));
   };
 
   const cardStyle = {
@@ -37,20 +51,33 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
     animationDelay: `${index * 150}ms`,
   } as React.CSSProperties;
 
-  const handleInteraction = (type: 'like' | 'comment' | 'share' | 'profile') => {
-    if (onProfileClick) {
-      onProfileClick(post.themeHue);
-    }
-    
-    if (type === 'like') {
-      const nextState = !isLiked;
-      setIsLiked(nextState);
-      saveInteraction(nextState, isCommented);
-    } else if (type === 'comment') {
-      const nextState = !isCommented;
-      setIsCommented(nextState);
-      saveInteraction(isLiked, nextState);
-    }
+  const handleLike = () => {
+    const nextState = !isLiked;
+    setIsLiked(nextState);
+    saveToLocal(nextState, localComments);
+    if (onProfileClick) onProfileClick(post.themeHue);
+  };
+
+  const handleProfileClick = () => {
+    if (onProfileClick) onProfileClick(post.themeHue);
+  };
+
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const comment: Comment = {
+      id: Date.now().toString(),
+      username: currentUser?.username || 'Anonymous',
+      text: newComment,
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedComments = [...localComments, comment];
+    setLocalComments(updatedComments);
+    setNewComment('');
+    saveToLocal(isLiked, updatedComments);
+    if (onProfileClick) onProfileClick(post.themeHue);
   };
 
   return (
@@ -58,10 +85,11 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
       className="bg-card/20 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl mb-6 animate-fade-in border border-white/5 group"
       style={cardStyle}
     >
+      {/* Header */}
       <div className="p-3 flex items-center justify-between">
         <div 
-          className="flex items-center gap-2 cursor-pointer transition-transform active:scale-95"
-          onClick={() => handleInteraction('profile')}
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-all active:scale-95"
+          onClick={handleProfileClick}
         >
           <div className="relative w-8 h-8 rounded-full overflow-hidden border-2" style={{ borderColor: `hsl(${post.themeHue}, 100%, 64%)` }}>
             <Image 
@@ -83,7 +111,8 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
         </button>
       </div>
 
-      <div className="relative aspect-[4/5] w-full overflow-hidden">
+      {/* Main Content Image */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden cursor-pointer" onClick={handleProfileClick}>
         <Image 
           src={post.imageUrl} 
           alt="Holographic Backdrop" 
@@ -99,10 +128,11 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
         </div>
       </div>
 
+      {/* Actions */}
       <div className="p-3 flex items-center justify-between border-t border-white/5 bg-black/10">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => handleInteraction('like')}
+            onClick={handleLike}
             className="flex items-center gap-1.5 group/btn"
           >
             <Heart 
@@ -122,33 +152,67 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
           </button>
           
           <button 
-            onClick={() => handleInteraction('comment')}
+            onClick={() => {
+              setShowComments(!showComments);
+              handleProfileClick();
+            }}
             className="flex items-center gap-1.5 group/btn"
           >
             <MessageCircle 
               className={cn(
                 "w-4 h-4 transition-all duration-300",
-                isCommented 
+                showComments 
                   ? "fill-[hsl(var(--post-secondary))] text-[hsl(var(--post-secondary))] scale-110" 
                   : "text-white/30 group-hover/btn:text-[hsl(var(--post-secondary))]"
               )} 
             />
             <span className={cn(
               "text-[10px] font-bold transition-colors",
-              isCommented ? "text-[hsl(var(--post-secondary))]" : "text-white/50"
+              showComments ? "text-[hsl(var(--post-secondary))]" : "text-white/50"
             )}>
-              {post.comments + (isCommented ? 1 : 0)}
+              {post.comments + localComments.length}
             </span>
           </button>
         </div>
         
-        <button 
-          onClick={() => handleInteraction('share')}
-          className="p-1.5 text-white/30 hover:text-[hsl(var(--post-primary))] transition-colors"
-        >
+        <button className="p-1.5 text-white/30 hover:text-[hsl(var(--post-primary))] transition-colors">
           <Share2 className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Comment Section */}
+      {showComments && (
+        <div className="p-3 border-t border-white/5 bg-white/5 animate-in slide-in-from-top-2 duration-300">
+          <div className="max-h-40 overflow-y-auto space-y-3 mb-3 custom-scrollbar">
+            {localComments.map((comment) => (
+              <div key={comment.id} className="flex flex-col">
+                <span className="text-[10px] font-bold text-primary">{comment.username}</span>
+                <span className="text-xs text-white/80">{comment.text}</span>
+              </div>
+            ))}
+            {localComments.length === 0 && (
+              <p className="text-[10px] text-white/30 text-center py-2 italic">Be the first to sync a thought...</p>
+            )}
+          </div>
+          
+          <form onSubmit={handleAddComment} className="flex gap-2">
+            <Input 
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="h-8 text-xs bg-white/5 border-white/10 rounded-xl focus:ring-primary/30"
+            />
+            <Button 
+              type="submit" 
+              size="icon" 
+              className="h-8 w-8 rounded-xl bg-primary hover:bg-primary/80"
+              disabled={!newComment.trim()}
+            >
+              <Send className="w-3 h-3 text-white" />
+            </Button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

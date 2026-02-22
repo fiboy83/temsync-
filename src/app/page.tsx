@@ -79,7 +79,7 @@ export default function Home() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
         setNavVisible(false);
       } else if (currentScrollY < lastScrollY.current) {
         setNavVisible(true);
@@ -125,6 +125,7 @@ export default function Home() {
                 post={post} 
                 index={index} 
                 onProfileClick={updateGlobalTheme}
+                currentUser={userProfile}
               />
             ))}
             
