@@ -13,6 +13,7 @@ export interface UserProfile {
   username: string;
   avatar: string;
   themeHue: number;
+  bio?: string;
 }
 
 const POSTS_STORAGE_KEY = 'temsync_all_posts';
@@ -24,14 +25,14 @@ export default function Home() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    username: 'NeonTraveler',
+    username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
     themeHue: 266,
+    bio: 'exploring the holographic horizons of the multiverse. ✨',
   });
   
   const lastScrollY = useRef(0);
 
-  // Function to change the global theme based on a hue
   const updateGlobalTheme = (hue: number) => {
     const root = document.documentElement;
     root.style.setProperty('--primary', `${hue} 100% 64%`);
@@ -41,7 +42,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // Load profile from localStorage
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
       const parsed = JSON.parse(savedProfile);
@@ -74,13 +74,11 @@ export default function Home() {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
       if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
         setNavVisible(false);
       } else if (currentScrollY < lastScrollY.current) {
         setNavVisible(true);
       }
-      
       lastScrollY.current = currentScrollY;
     };
 
@@ -98,11 +96,10 @@ export default function Home() {
     const updatedPosts = [newPost, ...posts];
     setPosts(updatedPosts);
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
-    updateGlobalTheme(userProfile.themeHue);
   };
 
   return (
-    <main className="min-h-screen pt-12 pb-14 md:pt-14 md:pb-16 transition-colors duration-700">
+    <main className="min-h-screen pt-12 pb-14 md:pt-14 md:pb-16 transition-colors duration-700 bg-background">
       <TopNav 
         visible={navVisible} 
         userProfile={userProfile} 
@@ -114,23 +111,24 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
             <p className="font-headline text-primary font-medium tracking-widest uppercase text-[10px]">
-              Syncing Reality...
+              syncing reality...
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 
                 post={post} 
                 index={index} 
                 currentUser={userProfile}
+                onCurrentUserProfileClick={() => setIsProfileOpen(true)}
               />
             ))}
             
-            {posts.length === 0 && !loading && (
+            {posts.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-foreground/50 text-sm">The multiverse is empty.</p>
+                <p className="text-foreground/50 text-xs lowercase">the multiverse is empty.</p>
               </div>
             )}
           </div>
