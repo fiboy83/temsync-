@@ -78,7 +78,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       timestamp: new Date().toISOString(),
       likes: 0,
       isLiked: false,
-      themeHue: currentUser?.themeHue ?? 266, // Default to indigo if not set
+      themeHue: currentUser?.themeHue ?? 266,
     };
 
     const updatedComments = [...localComments, comment];
@@ -128,7 +128,9 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             />
           </div>
           <div className="text-left">
-            <h3 className="font-bold text-sm tracking-tight text-white/90">{post.username}</h3>
+            <h3 className="font-bold text-sm tracking-tight transition-colors" style={{ color: hueColor }}>
+              {post.username}
+            </h3>
             <p className="text-[10px] text-white/30 font-medium uppercase tracking-widest">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </p>
@@ -273,10 +275,14 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               const commentHueColorMuted = `hsl(${comment.themeHue}, 100%, 64%, 0.2)`;
               
               return (
-                <div key={comment.id} className="flex flex-col gap-1 group/comment focus-within:ring-1 focus-within:ring-white/10 rounded-2xl p-1 transition-all">
+                <div key={comment.id} className="flex flex-col gap-1 group/comment rounded-2xl p-1 transition-all">
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: commentHueColor }}>{comment.username}</span>
-                    <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: commentHueColor }}>
+                      {comment.username}
+                    </span>
+                    <span className="text-[8px] text-white/20">
+                      {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
                   <div 
                     className="text-xs text-white/70 bg-white/5 p-3 rounded-2xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
@@ -284,7 +290,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                   >
                     {comment.text}
                     
-                    {/* Comment Interaction Bar with Commenter's Color */}
                     <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleCommentLike(comment.id)}
