@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Reply } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ interface Comment {
   username: string;
   text: string;
   timestamp: string;
+  likes?: number;
+  isLiked?: boolean;
 }
 
 interface PostCardProps {
@@ -72,11 +74,29 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       username: currentUser?.username || 'Anonymous',
       text: newComment,
       timestamp: new Date().toISOString(),
+      likes: 0,
+      isLiked: false,
     };
 
     const updatedComments = [...localComments, comment];
     setLocalComments(updatedComments);
     setNewComment('');
+    saveToLocal(isLiked, updatedComments);
+  };
+
+  const handleCommentLike = (commentId: string) => {
+    const updatedComments = localComments.map(c => {
+      if (c.id === commentId) {
+        const currentlyLiked = c.isLiked || false;
+        return {
+          ...c,
+          isLiked: !currentlyLiked,
+          likes: (c.likes || 0) + (currentlyLiked ? -1 : 1)
+        };
+      }
+      return c;
+    });
+    setLocalComments(updatedComments);
     saveToLocal(isLiked, updatedComments);
   };
 
@@ -244,9 +264,9 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300 border-t"
           style={{ borderColor: hueColorDeepMuted }}
         >
-          <div className="max-h-48 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left scroll-smooth">
+          <div className="max-h-64 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left scroll-smooth">
             {localComments.map((comment) => (
-              <div key={comment.id} className="flex flex-col gap-1 group/comment">
+              <div key={comment.id} className="flex flex-col gap-1 group/comment focus-within:ring-1 focus-within:ring-white/10 rounded-2xl p-1 transition-all">
                 <div className="flex justify-between items-center px-1">
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: hueColor }}>{comment.username}</span>
                   <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -256,6 +276,31 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                   style={{ borderColor: hueColorMuted }}
                 >
                   {comment.text}
+                  
+                  {/* Comment Interaction Bar */}
+                  <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => handleCommentLike(comment.id)}
+                      className="flex items-center gap-1.5 hover:scale-110 transition-transform"
+                    >
+                      <Heart 
+                        className={cn("w-3 h-3", comment.isLiked && "fill-current")} 
+                        style={{ color: comment.isLiked ? hueColor : 'white' }} 
+                      />
+                      {comment.likes && comment.likes > 0 ? (
+                        <span className="text-[8px] font-bold" style={{ color: comment.isLiked ? hueColor : 'white' }}>{comment.likes}</span>
+                      ) : null}
+                    </button>
+                    
+                    <button className="flex items-center gap-1.5 hover:scale-110 transition-transform">
+                      <Reply className="w-3 h-3 text-white" />
+                      <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Reply</span>
+                    </button>
+                    
+                    <button className="flex items-center gap-1.5 hover:scale-110 transition-transform ml-auto">
+                      <Share2 className="w-3 h-3 text-white opacity-50" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
