@@ -88,10 +88,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
   return (
     <main className="min-h-screen pb-20 bg-background">
-      <TopNav userProfile={currentUserProfile} />
+      <TopNav userProfile={currentUserProfile} onProfileClick={() => setIsProfileOpen(true)} />
       
       {/* Header / Banner Area */}
-      <div className="relative h-48 w-full overflow-hidden">
+      <div className="relative h-40 w-full overflow-hidden">
         <div 
           className="absolute inset-0 opacity-30 blur-3xl animate-pulse"
           style={{ backgroundColor: hueColor }}
@@ -99,19 +99,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
         
         <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
-          <Link href="/" className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white">
-            <ArrowLeft className="w-5 h-5" />
+          <Link href="/" className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white/80 hover:text-white transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          <button className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white">
-            <MoreVertical className="w-5 h-5" />
+          <button className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white/80 hover:text-white transition-colors">
+            <MoreVertical className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Profile Info */}
-      <div className="max-w-lg mx-auto px-6 -mt-16 relative z-10 text-left">
+      <div className="max-w-lg mx-auto px-6 -mt-12 relative z-10 text-left">
         <div className="flex flex-col gap-4">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
+          <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
             <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
           </div>
 
@@ -124,7 +124,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             </p>
           </div>
 
-          <p className="text-sm text-white/80 leading-relaxed">
+          <p className="text-sm text-white/80 leading-relaxed lowercase">
             exploring the holographic horizons of the multiverse. just another digital traveler in the sync stream. ✨
           </p>
 
@@ -137,13 +137,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
-              <Calendar className="w-3 h-3" style={{ color: hueColor }} />
-              sync'd jan 2024
-            </div>
           </div>
 
-          <div className="flex gap-8 py-4 border-y border-white/5 mt-2">
+          <div className="flex gap-8 py-3 border-y border-white/5 mt-1">
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
               <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">syncs</span>
@@ -152,16 +148,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               <span className="text-xl font-headline font-bold text-white">1.2k</span>
               <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">resonance</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-headline font-bold text-white">842</span>
-              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">following</span>
-            </div>
           </div>
         </div>
 
         {/* User Posts Feed */}
-        <div className="mt-10 space-y-6">
-          <h2 className="text-xs font-bold lowercase tracking-[0.2em] text-white/60 mb-6">
+        <div className="mt-8 space-y-4">
+          <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/60 mb-4">
             recent stream
           </h2>
           
@@ -183,7 +175,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       </div>
 
       <BottomNav 
-        onProfileClick={() => setIsProfileOpen(true)} 
         onPostClick={() => setIsCreatePostOpen(true)}
         userProfile={currentUserProfile}
       />

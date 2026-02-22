@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import type { UserProfile } from '@/app/page';
 
 interface TopNavProps {
   visible?: boolean;
   userProfile?: UserProfile;
+  onProfileClick?: () => void;
 }
 
-export function TopNav({ visible = true, userProfile }: TopNavProps) {
+export function TopNav({ visible = true, userProfile, onProfileClick }: TopNavProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -90,8 +92,8 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search multiverse..."
-              className="bg-transparent border-none outline-none text-xs w-full text-white placeholder:text-white/20"
+              placeholder="search multiverse..."
+              className="bg-transparent border-none outline-none text-xs w-full text-white placeholder:text-white/20 lowercase"
             />
             {query && (
               <button 
@@ -104,7 +106,7 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
           </form>
         </div>
         
-        {/* Title - Static position, smooth fade */}
+        {/* Title */}
         <h1 className={cn(
           "absolute left-1/2 -translate-x-1/2 font-headline text-base font-bold holographic-text tracking-tight transition-all duration-300 pointer-events-none",
           isExpanded ? "opacity-0 scale-95" : "opacity-100 scale-100"
@@ -112,9 +114,9 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
           temsync
         </h1>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         <div className={cn(
-          "transition-all duration-300 flex items-center shrink-0 z-10",
+          "transition-all duration-300 flex items-center gap-2 shrink-0 z-10",
           isExpanded ? "opacity-0 w-0 pointer-events-none overflow-hidden" : "opacity-100 w-auto ml-auto"
         )}>
           <button 
@@ -123,6 +125,16 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
           >
             <Wallet className="w-4 h-4" style={{ color: hueColor }} />
           </button>
+          
+          {userProfile && (
+            <button 
+              onClick={onProfileClick}
+              className="relative w-8 h-8 rounded-full overflow-hidden border-2 transition-transform active:scale-90"
+              style={{ borderColor: hueColor }}
+            >
+              <Image src={userProfile.avatar} alt="Profile" fill className="object-cover" />
+            </button>
+          )}
         </div>
       </div>
     </nav>

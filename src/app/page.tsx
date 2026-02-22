@@ -103,7 +103,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pt-12 pb-14 md:pt-14 md:pb-16 transition-colors duration-700">
-      <TopNav visible={navVisible} userProfile={userProfile} />
+      <TopNav 
+        visible={navVisible} 
+        userProfile={userProfile} 
+        onProfileClick={() => setIsProfileOpen(true)}
+      />
       
       <div className="max-w-lg mx-auto px-4 w-full">
         {loading ? (
@@ -114,7 +118,7 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 
@@ -135,7 +139,6 @@ export default function Home() {
 
       <BottomNav 
         visible={navVisible} 
-        onProfileClick={() => setIsProfileOpen(true)} 
         onPostClick={() => setIsCreatePostOpen(true)}
         userProfile={userProfile}
       />

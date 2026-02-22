@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Repeat, Plus, Mail } from 'lucide-react';
+import { ShoppingBag, Repeat, Plus, Mail, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,12 +7,11 @@ import type { UserProfile } from '@/app/page';
 
 interface BottomNavProps {
   visible?: boolean;
-  onProfileClick?: () => void;
   onPostClick?: () => void;
   userProfile?: UserProfile;
 }
 
-export function BottomNav({ visible = true, onProfileClick, onPostClick, userProfile }: BottomNavProps) {
+export function BottomNav({ visible = true, onPostClick, userProfile }: BottomNavProps) {
   const pathname = usePathname();
   const hueColor = userProfile ? `hsl(${userProfile.themeHue}, 100%, 64%)` : 'hsl(var(--primary))';
   
@@ -22,6 +21,19 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
       !visible && "translate-y-[150%]"
     )}>
       <div className="glass rounded-2xl px-1 py-1 flex items-center justify-around holographic-glow border-white/5">
+        <Link 
+          href="/"
+          className={cn(
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            pathname === '/' ? "bg-white/5" : "hover:bg-white/5"
+          )}
+        >
+          <div className="p-1">
+            <Home className="w-3.5 h-3.5" style={{ color: hueColor }} />
+          </div>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>home</span>
+        </Link>
+
         <Link 
           href="/market"
           className={cn(
@@ -33,19 +45,6 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
             <ShoppingBag className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
           <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>market</span>
-        </Link>
-
-        <Link 
-          href="/"
-          className={cn(
-            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
-            pathname === '/' ? "bg-white/5" : "hover:bg-white/5"
-          )}
-        >
-          <div className="p-1">
-            <Repeat className="w-3.5 h-3.5" style={{ color: hueColor }} />
-          </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>swap</span>
         </Link>
 
         <button 
@@ -66,33 +65,19 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
           <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>inbox</span>
         </button>
 
-        <button 
-          onClick={onProfileClick}
-          className="flex flex-col items-center group py-1 px-2"
+        <Link 
+          href="/"
+          className={cn(
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            pathname === '/swap' ? "bg-white/5" : "hover:bg-white/5"
+          )}
         >
-          <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
-            <UserIcon className="w-3.5 h-3.5" color={hueColor} />
+          <div className="p-1">
+            <Repeat className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>profile</span>
-        </button>
+          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>swap</span>
+        </Link>
       </div>
     </nav>
-  );
-}
-
-function UserIcon({ color }: { color: string }) {
-  return (
-    <svg 
-      className="w-3.5 h-3.5"
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke={color} 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
   );
 }
