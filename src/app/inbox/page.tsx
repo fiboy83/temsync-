@@ -69,14 +69,14 @@ export default function InboxPage() {
           href="/" 
           className="absolute top-2 left-4 p-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/80 hover:text-white transition-colors z-10"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </Link>
 
         <div className="mb-12 mt-12 text-center">
           <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
             inbox
           </h1>
-          <p className="text-[10px] text-white/60 lowercase tracking-[0.2em] font-bold mt-2">
+          <p className="text-[12px] text-white/60 lowercase tracking-[0.2em] font-bold mt-2">
             incoming neural signals
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function InboxPage() {
           {DUMMY_MESSAGES.map((msg, idx) => (
             <div 
               key={msg.id}
-              className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-3 border transition-all animate-fade-in group hover:bg-white/5 cursor-pointer"
+              className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/5 cursor-pointer"
               style={{ 
                 animationDelay: `${idx * 100}ms`,
                 borderColor: `hsl(${msg.hue}, 100%, 64%, 0.15)`,
@@ -93,27 +93,27 @@ export default function InboxPage() {
               }}
             >
               <div className="flex gap-4 items-center">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: `hsl(${msg.hue}, 100%, 64%)` }}>
+                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: `hsl(${msg.hue}, 100%, 64%)` }}>
                   <Image src={msg.avatar} alt={msg.sender} fill className="object-cover" />
                   {msg.unread && (
                     <div 
-                      className="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-background animate-pulse" 
+                      className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full border-2 border-background animate-pulse" 
                       style={{ backgroundColor: `hsl(${msg.hue}, 100%, 64%)` }}
                     />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center mb-0.5">
-                    <h3 className="text-xs font-bold lowercase tracking-tight" style={{ color: `hsl(${msg.hue}, 100%, 64%)` }}>
+                  <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-[13px] font-bold lowercase tracking-tight" style={{ color: `hsl(${msg.hue}, 100%, 64%)` }}>
                       {msg.sender}
                     </h3>
-                    <div className="flex items-center gap-1 opacity-60">
-                      <Clock className="w-2.5 h-2.5" />
-                      <span className="text-[8px] font-bold lowercase tracking-tighter">{msg.time}</span>
+                    <div className="flex items-center gap-1.5 opacity-60">
+                      <Clock className="w-3 h-3" />
+                      <span className="text-[10px] font-bold lowercase tracking-tighter">{msg.time}</span>
                     </div>
                   </div>
-                  <p className="text-[11px] text-white/80 line-clamp-1 lowercase tracking-tight leading-snug">
+                  <p className="text-[13px] text-white/80 line-clamp-1 lowercase tracking-tight leading-snug">
                     {msg.preview}
                   </p>
                 </div>
@@ -127,8 +127,8 @@ export default function InboxPage() {
                 <Sparkles className="w-10 h-10" style={{ color: hueColor }} />
               </div>
               <div className="text-center space-y-2">
-                <p className="text-xs font-bold text-white lowercase">no active frequencies</p>
-                <p className="text-[10px] text-white/50 lowercase tracking-wider max-w-[200px] mx-auto leading-relaxed">your inbox is currently clear in this timeline.</p>
+                <p className="text-sm font-bold text-white lowercase">no active frequencies</p>
+                <p className="text-[12px] text-white/50 lowercase tracking-wider max-w-[200px] mx-auto leading-relaxed">your inbox is currently clear in this timeline.</p>
               </div>
             </div>
           )}

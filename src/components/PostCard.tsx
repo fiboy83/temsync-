@@ -115,31 +115,31 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     >
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href={`/profile/${post.username.toLowerCase()}`} className="relative w-7 h-7 rounded-full overflow-hidden border flex-shrink-0" style={{ borderColor: hueColor }}>
+          <Link href={`/profile/${post.username.toLowerCase()}`} className="relative w-8 h-8 rounded-full overflow-hidden border flex-shrink-0" style={{ borderColor: hueColor }}>
             <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
           </Link>
           <div className="text-left">
-            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-[10px] tracking-tight block lowercase text-white/90">
+            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-[12px] tracking-tight block lowercase text-white/90">
               {post.username.toLowerCase()}
             </Link>
-            <p className="text-[7px] text-white/50 font-bold lowercase tracking-widest">
+            <p className="text-[9px] text-white/50 font-bold lowercase tracking-widest">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
             </p>
           </div>
         </div>
         <button className="p-1 text-white/30 hover:text-white transition-colors">
-          <MoreHorizontal className="w-3.5 h-3.5" />
+          <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
 
-      <div className={cn("px-3 pb-2 text-left", hasMedia && "pb-2.5")}>
-        <p className="text-[11px] leading-relaxed text-white/80 lowercase">
+      <div className={cn("px-4 pb-2 text-left", hasMedia && "pb-3")}>
+        <p className="text-[13px] leading-relaxed text-white/80 lowercase">
           {displayedContent}
         </p>
         {isTooLong && (
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[7px] font-bold mt-1 lowercase tracking-widest hover:underline"
+            className="text-[9px] font-bold mt-1.5 lowercase tracking-widest hover:underline"
             style={{ color: hueColor }}
           >
             {isExpanded ? 'less' : 'more'}
@@ -148,7 +148,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       </div>
 
       {hasMedia && (
-        <div className="px-2 pb-2">
+        <div className="px-3 pb-3">
           <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden border border-white/5 bg-black/10">
             {post.videoUrl ? (
               <video src={post.videoUrl} className="w-full h-full object-cover" autoPlay muted loop playsInline />
@@ -159,46 +159,46 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         </div>
       )}
 
-      <div className="px-3 py-1.5 flex items-center justify-between border-t border-white/5">
-        <div className="flex items-center gap-4">
-          <button onClick={handleLike} className="flex items-center gap-1.5 group/btn">
-            <Heart className={cn("w-3.5 h-3.5 transition-all", isLiked ? "fill-current scale-110" : "text-white/30 group-hover/btn:scale-110")} style={{ color: isLiked ? hueColor : undefined }} />
-            <span className="text-[9px] font-bold text-white/50" style={{ color: isLiked ? hueColor : undefined }}>{post.likes + (isLiked ? 1 : 0)}</span>
+      <div className="px-4 py-2 flex items-center justify-between border-t border-white/5">
+        <div className="flex items-center gap-5">
+          <button onClick={handleLike} className="flex items-center gap-2 group/btn">
+            <Heart className={cn("w-4 h-4 transition-all", isLiked ? "fill-current scale-110" : "text-white/30 group-hover/btn:scale-110")} style={{ color: isLiked ? hueColor : undefined }} />
+            <span className="text-[11px] font-bold text-white/50" style={{ color: isLiked ? hueColor : undefined }}>{post.likes + (isLiked ? 1 : 0)}</span>
           </button>
-          <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-1.5 group/btn">
-            <MessageCircle className={cn("w-3.5 h-3.5 transition-all", showComments ? "fill-current scale-110" : "text-white/30 group-hover/btn:scale-110")} style={{ color: showComments ? hueColor : undefined }} />
-            <span className="text-[9px] font-bold text-white/50" style={{ color: showComments ? hueColor : undefined }}>{post.comments + localComments.length}</span>
+          <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group/btn">
+            <MessageCircle className={cn("w-4 h-4 transition-all", showComments ? "fill-current scale-110" : "text-white/30 group-hover/btn:scale-110")} style={{ color: showComments ? hueColor : undefined }} />
+            <span className="text-[11px] font-bold text-white/50" style={{ color: showComments ? hueColor : undefined }}>{post.comments + localComments.length}</span>
           </button>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button onClick={toggleBookmark} className="p-1 group/bookmark">
-            <Bookmark className={cn("w-3.5 h-3.5 transition-all", isBookmarked ? "fill-current scale-110" : "text-white/30 group-hover/bookmark:scale-110")} style={{ color: isBookmarked ? hueColor : undefined }} />
+            <Bookmark className={cn("w-4 h-4 transition-all", isBookmarked ? "fill-current scale-110" : "text-white/30 group-hover/bookmark:scale-110")} style={{ color: isBookmarked ? hueColor : undefined }} />
           </button>
-          <button className="p-1 text-white/30 hover:text-white transition-colors"><Share2 className="w-3.5 h-3.5" /></button>
+          <button className="p-1 text-white/30 hover:text-white transition-colors"><Share2 className="w-4 h-4" /></button>
         </div>
       </div>
 
       {showComments && (
-        <div className="px-3 pb-3 pt-1 border-t border-white/5 animate-in slide-in-from-top-1 duration-200">
-          <div className="max-h-32 overflow-y-auto space-y-2 mb-2 text-left custom-scrollbar">
+        <div className="px-4 pb-4 pt-2 border-t border-white/5 animate-in slide-in-from-top-1 duration-200">
+          <div className="max-h-40 overflow-y-auto space-y-3 mb-3 text-left custom-scrollbar">
             {localComments.map((comment) => (
-              <div key={comment.id} className="flex flex-col gap-0.5">
+              <div key={comment.id} className="flex flex-col gap-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-[8px] font-bold lowercase" style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}>{comment.username}</span>
-                  <span className="text-[7px] text-white/30 font-bold">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}</span>
+                  <span className="text-[10px] font-bold lowercase" style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}>{comment.username}</span>
+                  <span className="text-[9px] text-white/30 font-bold">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}</span>
                 </div>
-                <p className="text-[10px] text-white/80 bg-white/5 p-1.5 rounded-lg border-l-2" style={{ borderLeftColor: `hsl(${comment.themeHue}, 100%, 64%, 0.4)` }}>{comment.text}</p>
+                <p className="text-[12px] text-white/80 bg-white/5 p-2 rounded-lg border-l-2" style={{ borderLeftColor: `hsl(${comment.themeHue}, 100%, 64%, 0.4)` }}>{comment.text}</p>
               </div>
             ))}
           </div>
-          <form onSubmit={handleAddComment} className="flex gap-1.5">
+          <form onSubmit={handleAddComment} className="flex gap-2">
             <Input 
               placeholder="beam thoughts..." 
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="h-6 text-[9px] bg-white/5 border-white/5 rounded-lg focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20"
+              className="h-8 text-[11px] bg-white/5 border-white/5 rounded-lg focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20"
             />
-            <button type="submit" className="h-6 px-3 rounded-lg text-white font-bold text-[8px] lowercase" style={{ backgroundColor: hueColor }}>send</button>
+            <button type="submit" className="h-8 px-4 rounded-lg text-white font-bold text-[10px] lowercase" style={{ backgroundColor: hueColor }}>send</button>
           </form>
         </div>
       )}

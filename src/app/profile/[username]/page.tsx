@@ -111,10 +111,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         
         <div className="absolute top-6 left-4 right-4 flex justify-between items-center z-10">
           <Link href="/" className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/5 text-white hover:bg-black/40 transition-all">
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </Link>
           <button className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/5 text-white hover:bg-black/40 transition-all">
-            <MoreVertical className="w-4 h-4" />
+            <MoreVertical className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -129,18 +129,18 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             {isSelf ? (
               <Button 
                 onClick={() => setIsEditOpen(true)}
-                className="rounded-xl h-9 px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-bold lowercase tracking-widest transition-all mb-1"
+                className="rounded-xl h-10 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-[11px] font-bold lowercase tracking-widest transition-all mb-1"
                 style={{ color: hueColor, borderColor: `${hueColor}33` }}
               >
-                <Edit2 className="w-3 h-3 mr-2" />
+                <Edit2 className="w-3.5 h-3.5 mr-2" />
                 edit profile
               </Button>
             ) : (
               <Button 
-                className="rounded-xl h-9 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-bold lowercase tracking-widest transition-all mb-1"
+                className="rounded-xl h-10 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-[11px] font-bold lowercase tracking-widest transition-all mb-1"
                 style={{ color: hueColor, borderColor: `${hueColor}33` }}
               >
-                <Send className="w-3.5 h-3.5 mr-2" />
+                <Send className="w-4 h-4 mr-2" />
                 send signal
               </Button>
             )}
@@ -150,56 +150,56 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             <h1 className="text-2xl font-headline font-bold holographic-text italic lowercase">
               {username}
             </h1>
-            <p className="text-[9px] text-white/50 lowercase tracking-[0.3em] font-bold">
+            <p className="text-[11px] text-white/50 lowercase tracking-[0.3em] font-bold">
               synchronized entity
             </p>
           </div>
 
-          <p className="text-xs text-white/80 leading-relaxed lowercase max-w-sm">
+          <p className="text-[14px] text-white/80 leading-relaxed lowercase max-w-sm">
             {viewedUser?.bio}
           </p>
 
           <div className="flex flex-wrap gap-4 pt-1">
-            <div className="flex items-center gap-1.5 text-[9px] text-white/60 font-bold lowercase tracking-widest">
-              <MapPin className="w-3 h-3" style={{ color: hueColor }} />
+            <div className="flex items-center gap-1.5 text-[11px] text-white/60 font-bold lowercase tracking-widest">
+              <MapPin className="w-3.5 h-3.5" style={{ color: hueColor }} />
               sector 7
             </div>
-            <div className="flex items-center gap-1.5 text-[9px] text-white/60 font-bold lowercase tracking-widest">
-              <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
+            <div className="flex items-center gap-1.5 text-[11px] text-white/60 font-bold lowercase tracking-widest">
+              <LinkIcon className="w-3.5 h-3.5" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
           </div>
 
-          <div className="flex gap-8 py-3 border-y border-white/5 mt-2">
+          <div className="flex gap-8 py-4 border-y border-white/5 mt-2">
             <div className="flex flex-col">
-              <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[8px] lowercase tracking-widest font-bold text-white/40">syncs</span>
+              <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
+              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40">syncs</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[8px] lowercase tracking-widest font-bold text-white/40">resonance</span>
+              <span className="text-2xl font-headline font-bold text-white">1.2k</span>
+              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40">resonance</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-8">
           <Tabs defaultValue="syncs" className="w-full">
-            <TabsList className="w-full bg-white/5 border border-white/5 h-9 p-1 rounded-xl mb-4">
+            <TabsList className="w-full bg-white/5 border border-white/5 h-11 p-1 rounded-xl mb-6">
               <TabsTrigger 
                 value="syncs" 
-                className="flex-1 rounded-lg text-[8px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                className="flex-1 rounded-lg text-[10px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
                 style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
               >
-                <Sparkles className="w-3 h-3 mr-1.5" style={{ color: hueColor }} />
+                <Sparkles className="w-4 h-4 mr-2" style={{ color: hueColor }} />
                 syncs
               </TabsTrigger>
               {isSelf && (
                 <TabsTrigger 
                   value="bookmarks" 
-                  className="flex-1 rounded-lg text-[8px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="flex-1 rounded-lg text-[10px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
                   style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
                 >
-                  <Bookmark className="w-3 h-3 mr-1.5" style={{ color: hueColor }} />
+                  <Bookmark className="w-4 h-4 mr-2" style={{ color: hueColor }} />
                   bookmarks
                 </TabsTrigger>
               )}
@@ -211,7 +211,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               ))}
               {posts.length === 0 && (
                 <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
-                  <p className="text-white/30 text-[9px] italic lowercase tracking-widest">no digital signals found.</p>
+                  <p className="text-white/30 text-[11px] italic lowercase tracking-widest">no digital signals found.</p>
                 </div>
               )}
             </TabsContent>
@@ -222,7 +222,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               ))}
               {bookmarkedPosts.length === 0 && (
                 <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
-                  <p className="text-white/30 text-[9px] italic lowercase tracking-widest">no bookmarks in cache.</p>
+                  <p className="text-white/30 text-[11px] italic lowercase tracking-widest">no bookmarks in cache.</p>
                 </div>
               )}
             </TabsContent>
