@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { PostCard } from '@/components/PostCard';
-import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles, Bookmark } from 'lucide-react';
+import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles, Bookmark, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ProfileSheet } from '@/components/ProfileSheet';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
@@ -18,65 +19,74 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [posts, setPosts] = useState<Post[]>([]);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
     themeHue: 266,
+    bio: 'exploring the holographic horizons of the multiverse. ✨',
   });
-  const [viewedUser, setViewedUser] = useState<{ username: string, avatar: string, themeHue: number } | null>(null);
+  const [viewedUser, setViewedUser] = useState<UserProfile | null>(null);
+
+  const loadUserContent = () => {
+    try {
+      const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
+      const savedBookmarksJson = localStorage.getItem(BOOKMARKS_KEY);
+      const bookmarkIds = savedBookmarksJson ? JSON.parse(savedBookmarksJson) : [];
+
+      if (savedPostsJson) {
+        const allPosts: Post[] = JSON.parse(savedPostsJson);
+        const userPosts = allPosts.filter(p => p.username.toLowerCase() === username.toLowerCase());
+        setPosts(userPosts);
+        const bookmarked = allPosts.filter(p => bookmarkIds.includes(p.id));
+        setBookmarkedPosts(bookmarked);
+
+        if (username.toLowerCase() === currentUserProfile.username.toLowerCase()) {
+          setViewedUser(currentUserProfile);
+        } else if (userPosts.length > 0) {
+          setViewedUser({
+            username: userPosts[0].username,
+            avatar: userPosts[0].profilePicture,
+            themeHue: userPosts[0].themeHue,
+            bio: 'synchronized entity in the stream.'
+          });
+        } else {
+          setViewedUser({
+            username: username,
+            avatar: `https://picsum.photos/seed/${username}/100/100`,
+            themeHue: 200,
+            bio: 'exploring the holographic horizons.'
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
       setCurrentUserProfile(JSON.parse(savedProfile));
     }
-
-    const loadUserContent = () => {
-      try {
-        const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
-        const savedBookmarksJson = localStorage.getItem(BOOKMARKS_KEY);
-        const bookmarkIds = savedBookmarksJson ? JSON.parse(savedBookmarksJson) : [];
-
-        if (savedPostsJson) {
-          const allPosts: Post[] = JSON.parse(savedPostsJson);
-          
-          // Filter user's posts
-          const userPosts = allPosts.filter(p => p.username.toLowerCase() === username.toLowerCase());
-          setPosts(userPosts);
-
-          // Filter bookmarked posts
-          const bookmarked = allPosts.filter(p => bookmarkIds.includes(p.id));
-          setBookmarkedPosts(bookmarked);
-
-          // Determine viewed user profile
-          if (username.toLowerCase() === currentUserProfile.username.toLowerCase()) {
-            setViewedUser(currentUserProfile);
-          } else if (userPosts.length > 0) {
-            setViewedUser({
-              username: userPosts[0].username,
-              avatar: userPosts[0].profilePicture,
-              themeHue: userPosts[0].themeHue
-            });
-          } else {
-            setViewedUser({
-              username: username,
-              avatar: `https://picsum.photos/seed/${username}/100/100`,
-              themeHue: 200
-            });
-          }
-        }
-      } catch (error) {
-        // failed to load content
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadUserContent();
-
     window.addEventListener('bookmarksUpdated', loadUserContent);
     return () => window.removeEventListener('bookmarksUpdated', loadUserContent);
   }, [username, currentUserProfile.username]);
+
+  const handleProfileUpdate = (newProfile: UserProfile) => {
+    setCurrentUserProfile(newProfile);
+    setViewedUser(newProfile);
+    localStorage.setItem('temsync_user_profile', JSON.stringify(newProfile));
+    
+    const root = document.documentElement;
+    root.style.setProperty('--primary', `${newProfile.themeHue} 100% 64%`);
+    
+    // Refresh content to reflect potential username/avatar changes in posts
+    loadUserContent();
+  };
 
   const hueColor = viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 64%)` : 'hsl(var(--primary))';
 
@@ -92,134 +102,140 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
   return (
     <main className="min-h-screen pb-12 bg-background">
-      <div className="relative h-48 w-full overflow-hidden">
+      <div className="relative h-44 w-full overflow-hidden">
         <div 
-          className="absolute inset-0 opacity-40 blur-3xl animate-pulse"
+          className="absolute inset-0 opacity-30 blur-3xl animate-pulse"
           style={{ backgroundColor: hueColor }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
         
         <div className="absolute top-6 left-4 right-4 flex justify-between items-center z-10">
-          <Link href="/" className="p-2.5 bg-black/30 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-black/50 transition-all">
+          <Link href="/" className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/5 text-white hover:bg-black/40 transition-all">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <button className="p-2.5 bg-black/30 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-black/50 transition-all">
+          <button className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/5 text-white hover:bg-black/40 transition-all">
             <MoreVertical className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-6 -mt-16 relative z-10 text-left">
-        <div className="flex flex-col gap-5">
+      <div className="max-w-lg mx-auto px-6 -mt-12 relative z-10 text-left">
+        <div className="flex flex-col gap-4">
           <div className="flex justify-between items-end">
-            <div className="relative w-32 h-32 rounded-full overflow-hidden border-[5px] holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
+            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
               <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
             </div>
             
-            {!isSelf && (
+            {isSelf ? (
               <Button 
-                className="rounded-2xl h-10 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold lowercase tracking-widest transition-all mb-2"
-                style={{ color: hueColor, borderColor: `${hueColor}44` }}
+                onClick={() => setIsEditOpen(true)}
+                className="rounded-xl h-9 px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-bold lowercase tracking-widest transition-all mb-1"
+                style={{ color: hueColor, borderColor: `${hueColor}33` }}
               >
-                <Send className="w-4 h-4 mr-2" />
+                <Edit2 className="w-3 h-3 mr-2" />
+                edit profile
+              </Button>
+            ) : (
+              <Button 
+                className="rounded-xl h-9 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-bold lowercase tracking-widest transition-all mb-1"
+                style={{ color: hueColor, borderColor: `${hueColor}33` }}
+              >
+                <Send className="w-3.5 h-3.5 mr-2" />
                 send signal
               </Button>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-headline font-bold holographic-text italic lowercase">
               {username}
             </h1>
-            <p className="text-[10px] text-white/80 lowercase tracking-[0.3em] font-bold">
+            <p className="text-[9px] text-white/50 lowercase tracking-[0.3em] font-bold">
               synchronized entity
             </p>
           </div>
 
-          <p className="text-sm text-white/90 leading-relaxed lowercase">
-            exploring the holographic horizons of the multiverse. just another digital traveler in the sync stream. ✨
+          <p className="text-xs text-white/80 leading-relaxed lowercase max-w-sm">
+            {viewedUser?.bio}
           </p>
 
-          <div className="flex flex-wrap gap-5 pt-3">
-            <div className="flex items-center gap-2 text-[10px] text-white/90 font-bold lowercase tracking-widest">
-              <MapPin className="w-3.5 h-3.5" style={{ color: hueColor }} />
-              neo tokyo sector 7
+          <div className="flex flex-wrap gap-4 pt-1">
+            <div className="flex items-center gap-1.5 text-[9px] text-white/60 font-bold lowercase tracking-widest">
+              <MapPin className="w-3 h-3" style={{ color: hueColor }} />
+              sector 7
             </div>
-            <div className="flex items-center gap-2 text-[10px] text-white/90 font-bold lowercase tracking-widest">
-              <LinkIcon className="w-3.5 h-3.5" style={{ color: hueColor }} />
+            <div className="flex items-center gap-1.5 text-[9px] text-white/60 font-bold lowercase tracking-widest">
+              <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
           </div>
 
-          <div className="flex gap-10 py-4 border-y border-white/10 mt-2">
+          <div className="flex gap-8 py-3 border-y border-white/5 mt-2">
             <div className="flex flex-col">
-              <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[9px] lowercase tracking-widest font-bold" style={{ color: hueColor }}>syncs</span>
+              <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
+              <span className="text-[8px] lowercase tracking-widest font-bold text-white/40">syncs</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[9px] lowercase tracking-widest font-bold" style={{ color: hueColor }}>resonance</span>
+              <span className="text-xl font-headline font-bold text-white">1.2k</span>
+              <span className="text-[8px] lowercase tracking-widest font-bold text-white/40">resonance</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-6">
           <Tabs defaultValue="syncs" className="w-full">
-            <TabsList className="w-full bg-white/5 border border-white/10 h-10 p-1 rounded-xl mb-6">
+            <TabsList className="w-full bg-white/5 border border-white/5 h-9 p-1 rounded-xl mb-4">
               <TabsTrigger 
                 value="syncs" 
-                className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all"
+                className="flex-1 rounded-lg text-[8px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
                 style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
               >
-                <Sparkles className="w-3 h-3 mr-2" style={{ color: hueColor }} />
+                <Sparkles className="w-3 h-3 mr-1.5" style={{ color: hueColor }} />
                 syncs
               </TabsTrigger>
               {isSelf && (
                 <TabsTrigger 
                   value="bookmarks" 
-                  className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all"
+                  className="flex-1 rounded-lg text-[8px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
                   style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
                 >
-                  <Bookmark className="w-3 h-3 mr-2" style={{ color: hueColor }} />
+                  <Bookmark className="w-3 h-3 mr-1.5" style={{ color: hueColor }} />
                   bookmarks
                 </TabsTrigger>
               )}
             </TabsList>
 
-            <TabsContent value="syncs" className="space-y-4 animate-fade-in outline-none">
+            <TabsContent value="syncs" className="space-y-1 animate-fade-in outline-none">
               {posts.map((post, index) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  index={index} 
-                  currentUser={currentUserProfile}
-                />
+                <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
               ))}
               {posts.length === 0 && (
-                <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                  <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no digital signals found in this timeline.</p>
+                <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
+                  <p className="text-white/30 text-[9px] italic lowercase tracking-widest">no digital signals found.</p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="bookmarks" className="space-y-4 animate-fade-in outline-none">
+            <TabsContent value="bookmarks" className="space-y-1 animate-fade-in outline-none">
               {bookmarkedPosts.map((post, index) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  index={index} 
-                  currentUser={currentUserProfile}
-                />
+                <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
               ))}
               {bookmarkedPosts.length === 0 && (
-                <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                  <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no bookmarked signals in your cache.</p>
+                <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
+                  <p className="text-white/30 text-[9px] italic lowercase tracking-widest">no bookmarks in cache.</p>
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      <ProfileSheet 
+        isOpen={isEditOpen} 
+        onOpenChange={setIsEditOpen} 
+        profile={currentUserProfile}
+        onUpdate={handleProfileUpdate}
+      />
     </main>
   );
 }

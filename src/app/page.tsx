@@ -4,10 +4,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { TopNav } from '@/components/TopNav';
 import { BottomNav } from '@/components/BottomNav';
 import { PostCard } from '@/components/PostCard';
-import { ProfileSheet } from '@/components/ProfileSheet';
-import { CreatePostDialog } from '@/components/CreatePostDialog';
 import { generateInitialDummyPosts, Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export interface UserProfile {
   username: string;
@@ -19,10 +18,10 @@ export interface UserProfile {
 const POSTS_STORAGE_KEY = 'temsync_all_posts';
 
 export default function Home() {
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(true);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
@@ -86,24 +85,16 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleProfileUpdate = (newProfile: UserProfile) => {
-    setUserProfile(newProfile);
-    localStorage.setItem('temsync_user_profile', JSON.stringify(newProfile));
-    updateGlobalTheme(newProfile.themeHue);
-  };
-
-  const handlePostCreated = (newPost: Post) => {
-    const updatedPosts = [newPost, ...posts];
-    setPosts(updatedPosts);
-    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
+  const handleProfileClick = () => {
+    router.push(`/profile/${userProfile.username.toLowerCase()}`);
   };
 
   return (
-    <main className="min-h-screen pt-12 pb-14 md:pt-14 md:pb-16 transition-colors duration-700 bg-background">
+    <main className="min-h-screen pt-12 pb-14 transition-colors duration-700 bg-background">
       <TopNav 
         visible={navVisible} 
         userProfile={userProfile} 
-        onProfileClick={() => setIsProfileOpen(true)}
+        onProfileClick={handleProfileClick}
       />
       
       <div className="max-w-lg mx-auto px-4 w-full">
@@ -115,22 +106,15 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 
                 post={post} 
                 index={index} 
                 currentUser={userProfile}
-                onCurrentUserProfileClick={() => setIsProfileOpen(true)}
               />
             ))}
-            
-            {posts.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-foreground/50 text-xs lowercase">the multiverse is empty.</p>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -139,20 +123,6 @@ export default function Home() {
         visible={navVisible} 
         onPostClick={() => setIsCreatePostOpen(true)}
         userProfile={userProfile}
-      />
-
-      <ProfileSheet 
-        isOpen={isProfileOpen} 
-        onOpenChange={setIsProfileOpen} 
-        profile={userProfile}
-        onUpdate={handleProfileUpdate}
-      />
-
-      <CreatePostDialog
-        isOpen={isCreatePostOpen}
-        onOpenChange={setIsCreatePostOpen}
-        userProfile={userProfile}
-        onPostCreated={handlePostCreated}
       />
     </main>
   );
