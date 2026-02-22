@@ -11,12 +11,12 @@ interface PostCardProps {
 export function PostCard({ post, index }: PostCardProps) {
   return (
     <div 
-      className="bg-card rounded-3xl overflow-hidden shadow-xl shadow-primary/5 mb-8 animate-fade-in border border-white/50"
+      className="bg-card/30 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl mb-8 animate-fade-in border border-white/5"
       style={{ animationDelay: `${index * 150}ms` }}
     >
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/30">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-secondary/20">
             <Image 
               src={post.profilePicture} 
               alt={post.username} 
@@ -25,13 +25,13 @@ export function PostCard({ post, index }: PostCardProps) {
             />
           </div>
           <div>
-            <h3 className="font-bold text-sm tracking-tight">{post.username}</h3>
-            <p className="text-[10px] text-foreground/40 font-medium">
+            <h3 className="font-bold text-sm tracking-tight text-white/90">{post.username}</h3>
+            <p className="text-[10px] text-white/40 font-medium">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </p>
           </div>
         </div>
-        <button className="p-1 text-foreground/30 hover:text-foreground">
+        <button className="p-1 text-white/20 hover:text-white/60">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
@@ -41,12 +41,12 @@ export function PostCard({ post, index }: PostCardProps) {
           src={post.imageUrl} 
           alt="Holographic Backdrop" 
           fill 
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-1000 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/60" />
         
-        <div className="absolute bottom-4 left-4 right-4 glass p-4 rounded-2xl">
-          <p className="text-sm font-medium leading-relaxed text-foreground/90">
+        <div className="absolute bottom-4 left-4 right-4 glass p-5 rounded-2xl">
+          <p className="text-sm font-medium leading-relaxed text-white/95">
             {post.content}
           </p>
         </div>
@@ -55,15 +55,15 @@ export function PostCard({ post, index }: PostCardProps) {
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button className="flex items-center gap-2 group">
-            <Heart className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-colors" />
-            <span className="text-xs font-bold text-foreground/60">{post.likes}</span>
+            <Heart className="w-5 h-5 text-white/30 group-hover:text-primary transition-colors" />
+            <span className="text-xs font-bold text-white/50">{post.likes}</span>
           </button>
           <button className="flex items-center gap-2 group">
-            <MessageCircle className="w-5 h-5 text-foreground/40 group-hover:text-secondary transition-colors" />
-            <span className="text-xs font-bold text-foreground/60">{post.comments}</span>
+            <MessageCircle className="w-5 h-5 text-white/30 group-hover:text-secondary transition-colors" />
+            <span className="text-xs font-bold text-white/50">{post.comments}</span>
           </button>
         </div>
-        <button className="p-2 text-foreground/40 hover:text-primary transition-colors">
+        <button className="p-2 text-white/30 hover:text-primary transition-colors">
           <Share2 className="w-5 h-5" />
         </button>
       </div>
