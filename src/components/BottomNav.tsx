@@ -1,6 +1,8 @@
 import React from 'react';
 import { ShoppingBag, Repeat, Plus, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import type { UserProfile } from '@/app/page';
 
 interface BottomNavProps {
@@ -11,6 +13,7 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ visible = true, onProfileClick, onPostClick, userProfile }: BottomNavProps) {
+  const pathname = usePathname();
   const hueColor = userProfile ? `hsl(${userProfile.themeHue}, 100%, 64%)` : 'hsl(var(--primary))';
   
   return (
@@ -19,19 +22,31 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick, userPro
       !visible && "translate-y-[150%]"
     )}>
       <div className="glass rounded-2xl px-1 py-1 flex items-center justify-around holographic-glow border-white/5">
-        <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
+        <Link 
+          href="/market"
+          className={cn(
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            pathname === '/market' ? "bg-white/5" : "hover:bg-white/5"
+          )}
+        >
+          <div className="p-1">
             <ShoppingBag className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
           <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>market</span>
-        </button>
+        </Link>
 
-        <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
+        <Link 
+          href="/"
+          className={cn(
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            pathname === '/' ? "bg-white/5" : "hover:bg-white/5"
+          )}
+        >
+          <div className="p-1">
             <Repeat className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
           <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>swap</span>
-        </button>
+        </Link>
 
         <button 
           onClick={onPostClick}
