@@ -24,6 +24,7 @@ import type { UserProfile } from '@/app/page';
 interface Comment {
   id: string;
   username: string;
+  avatar: string;
   text: string;
   timestamp: string;
   likes?: number;
@@ -147,6 +148,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     const comment: Comment = {
       id: Date.now().toString(),
       username: currentUser?.username || 'anonymous',
+      avatar: currentUser?.avatar || `https://picsum.photos/seed/${currentUser?.username || 'anon'}/100/100`,
       text: newComment,
       timestamp: new Date().toISOString(),
       likes: 0,
@@ -322,31 +324,38 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             </div>
 
             {/* Comments Area */}
-            <div className="px-6 pb-24 space-y-6">
+            <div className="px-6 pb-24 space-y-4">
               {localComments.map((comment) => (
-                <div 
-                  key={comment.id} 
-                  className="bg-white/5 backdrop-blur-2xl p-4 rounded-2xl border shadow-xl animate-fade-in relative overflow-hidden" 
-                  style={{ 
-                    borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%)`,
-                    borderColor: `hsl(${comment.themeHue}, 100%, 64%, 0.2)`
-                  }}
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <Link 
-                      href={`/profile/${comment.username.toLowerCase()}`}
-                      className="text-[12px] font-bold lowercase hover:underline transition-all" 
-                      style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}
-                    >
-                      @{comment.username}
-                    </Link>
-                    <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">
-                      {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                <div key={comment.id} className="flex flex-col items-start animate-fade-in">
+                  <div 
+                    className="bg-white/10 backdrop-blur-3xl p-3 rounded-2xl border shadow-xl w-fit max-w-[85%] relative overflow-hidden" 
+                    style={{ 
+                      borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%)`,
+                      borderColor: `hsl(${comment.themeHue}, 100%, 64%, 0.2)`
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div 
+                        className="relative w-6 h-6 rounded-full overflow-hidden border"
+                        style={{ borderColor: `hsl(${comment.themeHue}, 100%, 64%)` }}
+                      >
+                        <Image src={comment.avatar} alt={comment.username} fill className="object-cover" />
+                      </div>
+                      <Link 
+                        href={`/profile/${comment.username.toLowerCase()}`}
+                        className="text-[11px] font-bold lowercase hover:underline transition-all" 
+                        style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}
+                      >
+                        {comment.username}
+                      </Link>
+                      <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase ml-auto">
+                        {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-white/90 leading-relaxed lowercase">
+                      {comment.text}
+                    </p>
                   </div>
-                  <p className="text-[14px] text-white/90 leading-relaxed lowercase">
-                    {comment.text}
-                  </p>
                 </div>
               ))}
               {localComments.length === 0 && (
