@@ -38,19 +38,16 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       if (savedPostsJson) {
         const allPosts: any[] = JSON.parse(savedPostsJson);
         
-        // Filter active syncs for this user
         const userPosts = allPosts.filter(p => 
           p.username.toLowerCase() === username.toLowerCase() && !p.isArchived
         );
         setPosts(userPosts);
 
-        // Filter archived syncs for this user
         const archived = allPosts.filter(p => 
           p.username.toLowerCase() === username.toLowerCase() && p.isArchived
         );
         setArchivedPosts(archived);
 
-        // Filter bookmarks
         const bookmarked = allPosts.filter(p => bookmarkIds.includes(p.id));
         setBookmarkedPosts(bookmarked);
 
@@ -190,11 +187,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div className="flex gap-8 py-4 border-y border-white/5 mt-2">
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40">syncs</span>
+              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40" style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}>syncs</span>
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40">resonance</span>
+              <span className="text-[10px] lowercase tracking-widest font-bold text-white/40" style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}>resonance</span>
             </div>
           </div>
         </div>
@@ -232,7 +229,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               )}
             </TabsList>
 
-            <TabsContent value="syncs" className="space-y-1 animate-fade-in outline-none">
+            <TabsContent value="syncs" className="space-y-3 animate-fade-in outline-none">
               {posts.map((post, index) => (
                 <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
               ))}
@@ -243,7 +240,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               )}
             </TabsContent>
 
-            <TabsContent value="bookmarks" className="space-y-1 animate-fade-in outline-none">
+            <TabsContent value="bookmarks" className="space-y-3 animate-fade-in outline-none">
               {bookmarkedPosts.map((post, index) => (
                 <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
               ))}
@@ -254,7 +251,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               )}
             </TabsContent>
 
-            <TabsContent value="archive" className="space-y-1 animate-fade-in outline-none">
+            <TabsContent value="archive" className="space-y-3 animate-fade-in outline-none">
               {archivedPosts.map((post, index) => (
                 <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
               ))}

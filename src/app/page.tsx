@@ -54,7 +54,6 @@ export default function Home() {
         localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(allPosts));
       }
       
-      // Only show non-archived posts on main feed
       setPosts(allPosts.filter(p => !p.isArchived));
     } catch (error) {
       console.error("Failed to load posts:", error);
@@ -123,7 +122,7 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-3">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 

@@ -137,7 +137,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   return (
     <div 
-      className="bg-card/15 backdrop-blur-2xl rounded-[1.25rem] overflow-hidden mb-1 animate-fade-in border transition-all duration-300 group"
+      className="bg-card/15 backdrop-blur-2xl rounded-[1.25rem] overflow-hidden animate-fade-in border transition-all duration-300 group"
       style={{ 
         borderColor: hueColorMuted,
         boxShadow: hueColorGlow,
