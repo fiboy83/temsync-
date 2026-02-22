@@ -3,10 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Trash2, Archive } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { UserProfile } from '@/app/page';
 
 interface Comment {
@@ -26,6 +32,7 @@ interface PostCardProps {
 }
 
 const BOOKMARKS_KEY = 'temsync_bookmarks';
+const POSTS_STORAGE_KEY = 'temsync_all_posts';
 
 export function PostCard({ post, index, currentUser }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
@@ -70,6 +77,29 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     window.dispatchEvent(new Event('bookmarksUpdated'));
   };
 
+  const handleDelete = () => {
+    const savedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+    if (savedPosts) {
+      const allPosts: any[] = JSON.parse(savedPosts);
+      const filteredPosts = allPosts.filter(p => p.id !== post.id);
+      localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(filteredPosts));
+      window.dispatchEvent(new Event('postsUpdated'));
+    }
+  };
+
+  const handleArchive = () => {
+    const savedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+    if (savedPosts) {
+      const allPosts: any[] = JSON.parse(savedPosts);
+      const updatedPosts = allPosts.map(p => {
+        if (p.id === post.id) return { ...p, isArchived: !p.isArchived };
+        return p;
+      });
+      localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
+      window.dispatchEvent(new Event('postsUpdated'));
+    }
+  };
+
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
   const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.12)`;
   const hueColorGlow = `0 4px 15px -10px hsl(${post.themeHue}, 100%, 64%, 0.25)`;
@@ -103,6 +133,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   const hasMedia = !!post.imageUrl || !!post.videoUrl;
   const isTooLong = post.content.length > 140; 
   const displayedContent = isTooLong && !isExpanded ? `${post.content.substring(0, 140)}...` : post.content;
+  const isOwner = currentUser?.username.toLowerCase() === post.username.toLowerCase();
 
   return (
     <div 
@@ -119,7 +150,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
           </Link>
           <div className="text-left">
-            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-[12px] tracking-tight block lowercase text-white/90">
+            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-[12px] tracking-tight block lowercase" style={{ color: hueColor }}>
               {post.username.toLowerCase()}
             </Link>
             <p className="text-[9px] text-white/50 font-bold lowercase tracking-widest">
@@ -127,9 +158,30 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             </p>
           </div>
         </div>
-        <button className="p-1 text-white/30 hover:text-white transition-colors">
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
+        
+        {isOwner ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1 text-white/30 hover:text-white transition-colors">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-white/10 rounded-xl min-w-[120px]">
+              <DropdownMenuItem onClick={handleArchive} className="text-[11px] font-bold lowercase tracking-widest text-white/70 hover:text-white flex items-center gap-2 cursor-pointer">
+                <Archive className="w-3.5 h-3.5" />
+                {post.isArchived ? 'unarchive' : 'archive'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDelete} className="text-[11px] font-bold lowercase tracking-widest text-destructive hover:text-destructive flex items-center gap-2 cursor-pointer">
+                <Trash2 className="w-3.5 h-3.5" />
+                delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <button className="p-1 text-white/30 hover:text-white transition-colors">
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       <div className={cn("px-4 pb-2 text-left", hasMedia && "pb-3")}>

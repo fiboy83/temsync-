@@ -7,6 +7,7 @@ import { PostCard } from '@/components/PostCard';
 import { generateInitialDummyPosts, Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { CreatePostDialog } from '@/components/CreatePostDialog';
 
 export interface UserProfile {
   username: string;
@@ -40,6 +41,28 @@ export default function Home() {
     root.style.setProperty('--ring', `${hue} 100% 64%`);
   };
 
+  const loadAllPosts = async () => {
+    try {
+      const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
+      let allPosts: any[] = [];
+
+      if (savedPostsJson) {
+        allPosts = JSON.parse(savedPostsJson);
+      } else {
+        const dummyPosts = await generateInitialDummyPosts();
+        allPosts = dummyPosts.map(p => ({ ...p, isArchived: false }));
+        localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(allPosts));
+      }
+      
+      // Only show non-archived posts on main feed
+      setPosts(allPosts.filter(p => !p.isArchived));
+    } catch (error) {
+      console.error("Failed to load posts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
@@ -50,25 +73,6 @@ export default function Home() {
       updateGlobalTheme(userProfile.themeHue);
     }
 
-    async function loadAllPosts() {
-      try {
-        const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
-        let allPosts: Post[] = [];
-
-        if (savedPostsJson) {
-          allPosts = JSON.parse(savedPostsJson);
-        } else {
-          allPosts = await generateInitialDummyPosts();
-          localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(allPosts));
-        }
-        
-        setPosts(allPosts);
-      } catch (error) {
-        console.error("Failed to load posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
     loadAllPosts();
 
     const handleScroll = () => {
@@ -82,11 +86,24 @@ export default function Home() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('postsUpdated', loadAllPosts);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('postsUpdated', loadAllPosts);
+    };
   }, []);
 
   const handleProfileClick = () => {
     router.push(`/profile/${userProfile.username.toLowerCase()}`);
+  };
+
+  const handlePostCreated = (newPost: Post) => {
+    const savedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+    const allPosts = savedPosts ? JSON.parse(savedPosts) : [];
+    const updatedPosts = [newPost, ...allPosts];
+    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
+    loadAllPosts();
   };
 
   return (
@@ -123,6 +140,13 @@ export default function Home() {
         visible={navVisible} 
         onPostClick={() => setIsCreatePostOpen(true)}
         userProfile={userProfile}
+      />
+
+      <CreatePostDialog 
+        isOpen={isCreatePostOpen} 
+        onOpenChange={setIsCreatePostOpen} 
+        userProfile={userProfile}
+        onPostCreated={handlePostCreated}
       />
     </main>
   );

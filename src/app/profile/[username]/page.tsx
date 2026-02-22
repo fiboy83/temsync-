@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { PostCard } from '@/components/PostCard';
-import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles, Bookmark, Edit2 } from 'lucide-react';
+import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles, Bookmark, Edit2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ProfileSheet } from '@/components/ProfileSheet';
@@ -17,6 +17,7 @@ const BOOKMARKS_KEY = 'temsync_bookmarks';
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [archivedPosts, setArchivedPosts] = useState<Post[]>([]);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -35,19 +36,32 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       const bookmarkIds = savedBookmarksJson ? JSON.parse(savedBookmarksJson) : [];
 
       if (savedPostsJson) {
-        const allPosts: Post[] = JSON.parse(savedPostsJson);
-        const userPosts = allPosts.filter(p => p.username.toLowerCase() === username.toLowerCase());
+        const allPosts: any[] = JSON.parse(savedPostsJson);
+        
+        // Filter active syncs for this user
+        const userPosts = allPosts.filter(p => 
+          p.username.toLowerCase() === username.toLowerCase() && !p.isArchived
+        );
         setPosts(userPosts);
+
+        // Filter archived syncs for this user
+        const archived = allPosts.filter(p => 
+          p.username.toLowerCase() === username.toLowerCase() && p.isArchived
+        );
+        setArchivedPosts(archived);
+
+        // Filter bookmarks
         const bookmarked = allPosts.filter(p => bookmarkIds.includes(p.id));
         setBookmarkedPosts(bookmarked);
 
         if (username.toLowerCase() === currentUserProfile.username.toLowerCase()) {
           setViewedUser(currentUserProfile);
-        } else if (userPosts.length > 0) {
+        } else if (allPosts.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+          const firstPost = allPosts.find(p => p.username.toLowerCase() === username.toLowerCase());
           setViewedUser({
-            username: userPosts[0].username,
-            avatar: userPosts[0].profilePicture,
-            themeHue: userPosts[0].themeHue,
+            username: firstPost.username,
+            avatar: firstPost.profilePicture,
+            themeHue: firstPost.themeHue,
             bio: 'synchronized entity in the stream.'
           });
         } else {
@@ -73,7 +87,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     }
     loadUserContent();
     window.addEventListener('bookmarksUpdated', loadUserContent);
-    return () => window.removeEventListener('bookmarksUpdated', loadUserContent);
+    window.addEventListener('postsUpdated', loadUserContent);
+    return () => {
+      window.removeEventListener('bookmarksUpdated', loadUserContent);
+      window.removeEventListener('postsUpdated', loadUserContent);
+    };
   }, [username, currentUserProfile.username]);
 
   const handleProfileUpdate = (newProfile: UserProfile) => {
@@ -84,7 +102,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     const root = document.documentElement;
     root.style.setProperty('--primary', `${newProfile.themeHue} 100% 64%`);
     
-    // Refresh content to reflect potential username/avatar changes in posts
     loadUserContent();
   };
 
@@ -194,14 +211,24 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 syncs
               </TabsTrigger>
               {isSelf && (
-                <TabsTrigger 
-                  value="bookmarks" 
-                  className="flex-1 rounded-lg text-[10px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
-                  style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
-                >
-                  <Bookmark className="w-4 h-4 mr-2" style={{ color: hueColor }} />
-                  bookmarks
-                </TabsTrigger>
+                <>
+                  <TabsTrigger 
+                    value="bookmarks" 
+                    className="flex-1 rounded-lg text-[10px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
+                  >
+                    <Bookmark className="w-4 h-4 mr-2" style={{ color: hueColor }} />
+                    bookmarks
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="archive" 
+                    className="flex-1 rounded-lg text-[10px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
+                  >
+                    <Archive className="w-4 h-4 mr-2" style={{ color: hueColor }} />
+                    archive
+                  </TabsTrigger>
+                </>
               )}
             </TabsList>
 
@@ -223,6 +250,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               {bookmarkedPosts.length === 0 && (
                 <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
                   <p className="text-white/30 text-[11px] italic lowercase tracking-widest">no bookmarks in cache.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="archive" className="space-y-1 animate-fade-in outline-none">
+              {archivedPosts.map((post, index) => (
+                <PostCard key={post.id} post={post} index={index} currentUser={currentUserProfile} />
+              ))}
+              {archivedPosts.length === 0 && (
+                <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/5">
+                  <p className="text-white/30 text-[11px] italic lowercase tracking-widest">no archived signals.</p>
                 </div>
               )}
             </TabsContent>
