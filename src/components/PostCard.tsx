@@ -74,7 +74,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
     const comment: Comment = {
       id: Date.now().toString(),
-      username: currentUser?.username || 'Anonymous',
+      username: currentUser?.username || 'anonymous',
       text: newComment,
       timestamp: new Date().toISOString(),
       likes: 0,
@@ -117,10 +117,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] overflow-hidden mb-4 animate-fade-in border transition-all duration-300 group"
       style={cardStyle}
     >
-      {/* Header - More Compact */}
+      {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Link href={`/profile/${post.username}`} className="relative w-8 h-8 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
+          <Link href={`/profile/${post.username.toLowerCase()}`} className="relative w-8 h-8 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
             <Image 
               src={post.profilePicture} 
               alt={post.username} 
@@ -129,20 +129,20 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             />
           </Link>
           <div className="text-left">
-            <Link href={`/profile/${post.username}`} className="font-bold text-xs tracking-tight transition-colors hover:underline block" style={{ color: hueColor }}>
-              {post.username}
+            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-xs tracking-tight transition-colors hover:underline block lowercase" style={{ color: hueColor }}>
+              {post.username.toLowerCase()}
             </Link>
-            <p className="text-[8px] text-white/30 font-medium uppercase tracking-[0.15em]">
-              {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            <p className="text-[8px] text-white/60 font-medium lowercase tracking-[0.15em]">
+              {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
             </p>
           </div>
         </div>
-        <button className="p-1.5 text-white/20 hover:text-white/60 transition-colors">
+        <button className="p-1.5 text-white/40 hover:text-white/70 transition-colors">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Main Content - Reduced Insets */}
+      {/* Main Content */}
       <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[80px] flex items-center p-5")}>
         {hasMedia ? (
           <div className="absolute inset-1.5 rounded-[1.25rem] overflow-hidden border border-white/5">
@@ -176,10 +176,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[9px] font-bold mt-1 uppercase tracking-widest hover:underline"
+                    className="text-[9px] font-bold mt-1 lowercase tracking-widest hover:underline"
                     style={{ color: hueColor }}
                   >
-                    {isExpanded ? 'Less' : 'More'}
+                    {isExpanded ? 'less' : 'more'}
                   </button>
                 )}
               </div>
@@ -198,10 +198,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[9px] font-bold mt-1.5 uppercase tracking-widest hover:underline"
+                    className="text-[9px] font-bold mt-1.5 lowercase tracking-widest hover:underline"
                     style={{ color: hueColor }}
                   >
-                    {isExpanded ? 'Less' : 'More'}
+                    {isExpanded ? 'less' : 'more'}
                   </button>
                 )}
              </div>
@@ -209,7 +209,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         )}
       </div>
 
-      {/* Actions - Slimmer Row */}
+      {/* Actions */}
       <div className="px-5 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-5">
           <button 
@@ -221,13 +221,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 "w-4 h-4 transition-all duration-300",
                 isLiked 
                   ? "fill-current scale-110" 
-                  : "text-white/30 group-hover/btn:scale-110"
+                  : "text-white/40 group-hover/btn:scale-110"
               )} 
               style={{ color: isLiked ? hueColor : undefined }}
             />
             <span className={cn(
               "text-[10px] font-bold transition-colors",
-              isLiked ? "text-white" : "text-white/40"
+              isLiked ? "text-white" : "text-white/70"
             )}
             style={{ color: isLiked ? hueColor : undefined }}
             >
@@ -244,13 +244,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 "w-4 h-4 transition-all duration-300",
                 showComments 
                   ? "fill-current scale-110" 
-                  : "text-white/30 group-hover/btn:scale-110"
+                  : "text-white/40 group-hover/btn:scale-110"
               )} 
               style={{ color: showComments ? hueColor : undefined }}
             />
             <span className={cn(
               "text-[10px] font-bold transition-colors",
-              showComments ? "text-white" : "text-white/40"
+              showComments ? "text-white" : "text-white/70"
             )}
             style={{ color: showComments ? hueColor : undefined }}
             >
@@ -259,12 +259,12 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </button>
         </div>
         
-        <button className="p-1.5 text-white/30 hover:text-white transition-colors">
+        <button className="p-1.5 text-white/40 hover:text-white transition-colors">
           <Share2 className="w-4 h-4" style={{ color: hueColor }} />
         </button>
       </div>
 
-      {/* Comment Section - More Compact */}
+      {/* Comment Section */}
       {showComments && (
         <div 
           className="px-4 pb-4 pt-1 animate-in slide-in-from-top-1 duration-200 border-t"
@@ -278,20 +278,20 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               return (
                 <div key={comment.id} className="flex flex-col gap-0.5 group/comment rounded-xl p-0.5">
                   <div className="flex justify-between items-center px-1">
-                    <Link href={`/profile/${comment.username}`} className="text-[9px] font-bold uppercase tracking-wider hover:underline" style={{ color: commentHueColor }}>
-                      {comment.username}
+                    <Link href={`/profile/${comment.username.toLowerCase()}`} className="text-[9px] font-bold lowercase tracking-wider hover:underline" style={{ color: commentHueColor }}>
+                      {comment.username.toLowerCase()}
                     </Link>
-                    <span className="text-[7px] text-white/20">
-                      {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className="text-[7px] text-white/50">
+                      {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
                     </span>
                   </div>
                   <div 
-                    className="text-[11px] text-white/75 bg-white/5 p-2 rounded-xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
+                    className="text-[11px] text-white/85 bg-white/5 p-2 rounded-xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
                     style={{ borderColor: commentHueColorMuted }}
                   >
                     {comment.text}
                     
-                    <div className="flex items-center gap-3 mt-2 pt-1.5 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3 mt-2 pt-1.5 border-t border-white/5 opacity-60 group-hover/comment:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleCommentLike(comment.id)}
                         className="flex items-center gap-1 hover:scale-110 transition-transform"
@@ -307,7 +307,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                       
                       <button className="flex items-center gap-1 hover:scale-110 transition-transform">
                         <Reply className="w-2.5 h-2.5 text-white" />
-                        <span className="text-[7px] font-bold text-white uppercase tracking-tighter">Reply</span>
+                        <span className="text-[7px] font-bold text-white lowercase tracking-tighter">reply</span>
                       </button>
                       
                       <button className="flex items-center gap-1 hover:scale-110 transition-transform ml-auto">
@@ -319,8 +319,8 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               );
             })}
             {localComments.length === 0 && (
-              <p className="text-[8px] text-white/20 text-center py-4 italic uppercase tracking-widest">
-                Aura is silent...
+              <p className="text-[8px] text-white/50 text-center py-4 italic lowercase tracking-widest">
+                aura is silent...
               </p>
             )}
           </div>
@@ -328,7 +328,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           <form onSubmit={handleAddComment} className="flex gap-1.5">
             <div className="relative flex-1">
               <Input 
-                placeholder="Beam thoughts..."
+                placeholder="beam thoughts..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="h-8 text-[11px] bg-white/5 border-white/10 rounded-xl focus:ring-1 focus:ring-offset-0 pr-8"

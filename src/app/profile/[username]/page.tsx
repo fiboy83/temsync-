@@ -21,7 +21,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>({
-    username: 'NeonTraveler',
+    username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
     themeHue: 266,
   });
@@ -38,10 +38,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
         if (savedPostsJson) {
           const allPosts: Post[] = JSON.parse(savedPostsJson);
-          const userPosts = allPosts.filter(p => p.username === username);
+          const userPosts = allPosts.filter(p => p.username.toLowerCase() === username.toLowerCase());
           setPosts(userPosts);
 
-          if (username === currentUserProfile.username) {
+          if (username.toLowerCase() === currentUserProfile.username.toLowerCase()) {
             setViewedUser(currentUserProfile);
           } else if (userPosts.length > 0) {
             setViewedUser({
@@ -71,7 +71,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     const allPosts = savedPostsJson ? JSON.parse(savedPostsJson) : [];
     const updatedPosts = [newPost, ...allPosts];
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
-    if (newPost.username === username) {
+    if (newPost.username.toLowerCase() === username.toLowerCase()) {
       setPosts([newPost, ...posts]);
     }
   };
@@ -116,53 +116,53 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </div>
 
           <div className="space-y-1">
-            <h1 className="text-3xl font-headline font-bold holographic-text italic">
+            <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
               {username}
             </h1>
-            <p className="text-xs text-white/40 uppercase tracking-[0.3em] font-medium">
-              Synchronized Entity
+            <p className="text-xs text-white/70 lowercase tracking-[0.3em] font-medium">
+              synchronized entity
             </p>
           </div>
 
-          <p className="text-sm text-white/70 leading-relaxed">
-            Exploring the holographic horizons of the multiverse. Just another digital traveler in the sync stream. ✨
+          <p className="text-sm text-white/80 leading-relaxed">
+            exploring the holographic horizons of the multiverse. just another digital traveler in the sync stream. ✨
           </p>
 
           <div className="flex flex-wrap gap-4 pt-2">
-            <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
               <MapPin className="w-3 h-3" style={{ color: hueColor }} />
-              Neo Tokyo Sector 7
+              neo tokyo sector 7
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
               <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
-              temsync.io/{username}
+              temsync.io/{username.toLowerCase()}
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
               <Calendar className="w-3 h-3" style={{ color: hueColor }} />
-              Sync'd Jan 2024
+              sync'd jan 2024
             </div>
           </div>
 
           <div className="flex gap-8 py-4 border-y border-white/5 mt-2">
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[8px] text-white/30 uppercase tracking-widest font-bold">Syncs</span>
+              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">syncs</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[8px] text-white/30 uppercase tracking-widest font-bold">Resonance</span>
+              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">resonance</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">842</span>
-              <span className="text-[8px] text-white/30 uppercase tracking-widest font-bold">Following</span>
+              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">following</span>
             </div>
           </div>
         </div>
 
         {/* User Posts Feed */}
         <div className="mt-10 space-y-6">
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-6">
-            Recent Stream
+          <h2 className="text-xs font-bold lowercase tracking-[0.2em] text-white/60 mb-6">
+            recent stream
           </h2>
           
           {posts.map((post, index) => (
@@ -176,7 +176,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
           {posts.length === 0 && (
             <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
-              <p className="text-white/20 text-xs italic">No digital signals found in this timeline.</p>
+              <p className="text-white/40 text-xs italic lowercase">no digital signals found in this timeline.</p>
             </div>
           )}
         </div>

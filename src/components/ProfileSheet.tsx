@@ -35,11 +35,11 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-[2.5rem] bg-card/95 backdrop-blur-2xl border-white/10 h-[80vh] overflow-y-auto">
         <SheetHeader className="mb-8">
-          <SheetTitle className="text-2xl font-headline font-bold holographic-text text-center italic">
-            Edit Sync Profile
+          <SheetTitle className="text-2xl font-headline font-bold holographic-text text-center italic lowercase">
+            edit sync profile
           </SheetTitle>
-          <SheetDescription className="text-center text-white/40 uppercase tracking-[0.2em] text-[10px]">
-            Adjust your digital aura
+          <SheetDescription className="text-center text-white/70 lowercase tracking-[0.2em] text-[10px]">
+            adjust your digital aura
           </SheetDescription>
         </SheetHeader>
 
@@ -69,25 +69,25 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
                 onChange={handleAvatarChange}
               />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Tap to change avatar</p>
+            <p className="text-[10px] font-bold lowercase tracking-widest text-primary">tap to change avatar</p>
           </div>
 
           {/* Name Section */}
           <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-widest text-white/60 font-bold ml-1">Identity Tag</Label>
+            <Label className="text-xs lowercase tracking-widest text-white/80 font-bold ml-1">identity tag</Label>
             <Input 
-              value={profile.username}
-              onChange={(e) => onUpdate({ ...profile, username: e.target.value })}
-              className="bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary/50 font-medium"
-              placeholder="Enter your tag..."
+              value={profile.username.toLowerCase()}
+              onChange={(e) => onUpdate({ ...profile, username: e.target.value.toLowerCase() })}
+              className="bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary/50 font-medium lowercase"
+              placeholder="enter your tag..."
             />
           </div>
 
           {/* Theme Section */}
           <div className="space-y-6">
             <div className="flex justify-between items-end">
-              <Label className="text-xs uppercase tracking-widest text-white/60 font-bold ml-1">Aura Frequency</Label>
-              <span className="text-[10px] font-mono text-primary font-bold">{profile.themeHue}° HUE</span>
+              <Label className="text-xs lowercase tracking-widest text-white/80 font-bold ml-1">aura frequency</Label>
+              <span className="text-[10px] font-mono text-primary font-bold">{profile.themeHue}° hue</span>
             </div>
             <Slider 
               min={0} 
@@ -111,10 +111,10 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
 
           <Button 
             onClick={() => onOpenChange(false)}
-            className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/80 text-white font-headline font-bold text-lg shadow-xl shadow-primary/20"
+            className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/80 text-white font-headline font-bold text-lg shadow-xl shadow-primary/20 lowercase"
           >
             <Save className="w-5 h-5 mr-2" />
-            Sync Realities
+            sync realities
           </Button>
         </div>
       </SheetContent>

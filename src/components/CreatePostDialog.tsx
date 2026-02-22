@@ -40,7 +40,7 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
 
     const newPost: Post = {
       id: `post-${Date.now()}`,
-      username: userProfile.username,
+      username: userProfile.username.toLowerCase(),
       profilePicture: userProfile.avatar,
       content: content,
       imageUrl: mediaType === 'image' ? (mediaUrl || undefined) : undefined,
@@ -62,11 +62,11 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] bg-card/95 backdrop-blur-2xl border-white/10 rounded-3xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-headline font-bold holographic-text text-center italic">
-            Sync New Reality
+          <DialogTitle className="text-xl font-headline font-bold holographic-text text-center italic lowercase">
+            sync new reality
           </DialogTitle>
-          <DialogDescription className="text-center text-white/40 uppercase tracking-[0.2em] text-[8px]">
-            Broadcast your vibe to the multiverse
+          <DialogDescription className="text-center text-white/70 lowercase tracking-[0.2em] text-[8px]">
+            broadcast your vibe to the multiverse
           </DialogDescription>
         </DialogHeader>
 
@@ -75,14 +75,14 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
             <div className="relative w-8 h-8 rounded-full overflow-hidden border" style={{ borderColor: `hsl(${userProfile.themeHue}, 100%, 64%)` }}>
               <Image src={userProfile.avatar} alt="Me" fill className="object-cover" />
             </div>
-            <span className="text-xs font-bold text-white/80">{userProfile.username}</span>
+            <span className="text-xs font-bold text-white/90 lowercase">{userProfile.username.toLowerCase()}</span>
           </div>
 
           <Textarea
-            placeholder="What's happening in your timeline?"
+            placeholder="what's happening in your timeline?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="bg-white/5 border-white/5 rounded-2xl min-h-[100px] text-sm focus:ring-primary/30 resize-none"
+            className="bg-white/5 border-white/5 rounded-2xl min-h-[100px] text-sm focus:ring-primary/30 resize-none lowercase placeholder:lowercase"
           />
 
           {mediaUrl ? (
@@ -94,7 +94,7 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
               )}
               <button 
                 onClick={() => { setMediaUrl(null); setMediaType(null); }}
-                className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white/70 hover:text-white z-10"
+                className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white/80 hover:text-white z-10"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -110,8 +110,8 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
                 }}
                 className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-colors group"
               >
-                <ImagePlus className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
-                <span className="text-[8px] font-bold uppercase tracking-widest text-white/30">Image</span>
+                <ImagePlus className="w-6 h-6 text-white/40 group-hover:text-primary transition-colors" />
+                <span className="text-[8px] font-bold lowercase tracking-widest text-white/60">image</span>
               </button>
               
               <button
@@ -123,8 +123,8 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
                 }}
                 className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-colors group"
               >
-                <Video className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
-                <span className="text-[8px] font-bold uppercase tracking-widest text-white/30">Video</span>
+                <Video className="w-6 h-6 text-white/40 group-hover:text-primary transition-colors" />
+                <span className="text-[8px] font-bold lowercase tracking-widest text-white/60">video</span>
               </button>
             </div>
           )}
@@ -141,10 +141,10 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
           <Button 
             onClick={handlePost}
             disabled={!content && !mediaUrl}
-            className="w-full h-12 rounded-xl bg-primary hover:bg-primary/80 text-white font-headline font-bold shadow-lg shadow-primary/20"
+            className="w-full h-12 rounded-xl bg-primary hover:bg-primary/80 text-white font-headline font-bold shadow-lg shadow-primary/20 lowercase"
           >
             <Send className="w-4 h-4 mr-2" />
-            Sync to Feed
+            sync to feed
           </Button>
         </DialogFooter>
       </DialogContent>
