@@ -123,7 +123,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   };
 
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
-  const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.4)`;
+  const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.45)`;
   const hueColorGlow = `0 10px 40px -15px hsl(${post.themeHue}, 100%, 64%, 0.4)`;
 
   const handleLike = () => {
@@ -159,7 +159,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   return (
     <div 
-      className="bg-card/30 backdrop-blur-3xl rounded-[1.75rem] overflow-hidden animate-fade-in border transition-all duration-300 group mb-6"
+      className="bg-card/30 backdrop-blur-3xl rounded-[1.75rem] overflow-hidden animate-fade-in border transition-all duration-300 group mb-8"
       style={{ 
         borderColor: hueColorMuted,
         boxShadow: hueColorGlow,
@@ -252,17 +252,18 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
       {showComments && (
         <div className="px-5 pb-5 pt-3 border-t border-white/10 animate-in slide-in-from-top-2 duration-300 bg-white/5 backdrop-blur-3xl">
-          <div className="max-h-56 overflow-y-auto space-y-4 mb-4 text-left custom-scrollbar pr-2">
+          <div className="max-h-56 overflow-y-auto space-y-4 mb-4 text-left custom-scrollbar pr-2 pt-2">
             {localComments.map((comment) => (
               <div key={comment.id} className="flex flex-col gap-2 animate-fade-in">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center px-1">
                   <span className="text-[12px] font-bold lowercase" style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}>{comment.username}</span>
                   <span className="text-[10px] text-white/30 font-bold">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}</span>
                 </div>
                 <div 
-                  className="text-[14px] text-white/90 bg-white/10 backdrop-blur-3xl p-3.5 rounded-2xl border border-white/5 shadow-2xl" 
+                  className="text-[14px] text-white/90 bg-white/10 backdrop-blur-3xl p-3.5 rounded-2xl border shadow-2xl transition-all" 
                   style={{ 
-                    borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%, 0.6)`,
+                    borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%, 0.7)`,
+                    borderColor: `hsl(${comment.themeHue}, 100%, 64%, 0.2)`,
                     boxShadow: `0 10px 30px -15px hsl(${comment.themeHue}, 100%, 64%, 0.3)` 
                   }}
                 >
@@ -274,12 +275,12 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               <p className="text-[11px] text-white/20 italic text-center py-4">no signals in the thread yet...</p>
             )}
           </div>
-          <form onSubmit={handleAddComment} className="flex gap-3">
+          <form onSubmit={handleAddComment} className="flex gap-3 mt-2">
             <Input 
               placeholder="beam thoughts..." 
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="h-11 text-[13px] bg-white/10 border-white/10 rounded-xl focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20 backdrop-blur-xl"
+              className="h-11 text-[13px] bg-white/10 border-white/20 rounded-xl focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20 backdrop-blur-xl"
             />
             <button 
               type="submit" 
