@@ -19,39 +19,41 @@ export function BottomNav({ visible = true, onPostClick, userProfile }: BottomNa
   
   return (
     <nav className={cn(
-      "fixed bottom-2 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-md transition-transform duration-500 ease-in-out",
-      !visible && "translate-y-[150%]"
+      "fixed bottom-2 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-md transition-all duration-300 ease-in-out transform-gpu",
+      !visible && "translate-y-[150%] opacity-0"
     )}>
       <div className="glass rounded-2xl px-1 py-1 flex items-center justify-around holographic-glow border-white/5">
         <Link 
           href="/"
+          prefetch={true}
           className={cn(
-            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-all active-scale",
             pathname === '/' ? "bg-white/5" : "hover:bg-white/5"
           )}
         >
           <div className="p-1">
-            <Home className="w-3.5 h-3.5" style={{ color: hueColor }} />
+            <Home className="w-4 h-4" style={{ color: hueColor }} />
           </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>home</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest" style={{ color: hueColor }}>home</span>
         </Link>
 
         <Link 
           href="/market"
+          prefetch={true}
           className={cn(
-            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-all active-scale",
             pathname === '/market' ? "bg-white/5" : "hover:bg-white/5"
           )}
         >
           <div className="p-1">
-            <ShoppingBag className="w-3.5 h-3.5" style={{ color: hueColor }} />
+            <ShoppingBag className="w-4 h-4" style={{ color: hueColor }} />
           </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>market</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest" style={{ color: hueColor }}>market</span>
         </Link>
 
         <button 
           onClick={onPostClick}
-          className="relative -top-2 p-2 rounded-xl shadow-lg transition-all hover:scale-110 active:scale-90 text-white"
+          className="relative -top-2 p-2.5 rounded-xl shadow-lg transition-all hover:scale-110 active:scale-90 text-white active-scale"
           style={{ 
             backgroundColor: hueColor,
             boxShadow: `0 8px 20px -4px ${hueColor}66`
@@ -62,28 +64,29 @@ export function BottomNav({ visible = true, onPostClick, userProfile }: BottomNa
 
         <Link 
           href="/inbox"
+          prefetch={true}
           className={cn(
-            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-all active-scale",
             pathname === '/inbox' ? "bg-white/5" : "hover:bg-white/5"
           )}
         >
           <div className="p-1">
-            <Mail className="w-3.5 h-3.5" style={{ color: hueColor }} />
+            <Mail className="w-4 h-4" style={{ color: hueColor }} />
           </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>inbox</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest" style={{ color: hueColor }}>inbox</span>
         </Link>
 
         <Link 
           href="/"
           className={cn(
-            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-all active-scale",
             pathname === '/swap' ? "bg-white/5" : "hover:bg-white/5"
           )}
         >
           <div className="p-1">
-            <Repeat className="w-3.5 h-3.5" style={{ color: hueColor }} />
+            <Repeat className="w-4 h-4" style={{ color: hueColor }} />
           </div>
-          <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>swap</span>
+          <span className="text-[8px] font-bold lowercase tracking-widest" style={{ color: hueColor }}>swap</span>
         </Link>
       </div>
     </nav>

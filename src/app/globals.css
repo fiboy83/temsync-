@@ -32,22 +32,32 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl transform-gpu will-change-[backdrop-filter,transform];
   }
   
   .holographic-glow {
     box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5),
                 0 0 40px -10px hsl(var(--secondary) / 0.3);
+    @apply transform-gpu;
   }
 
   .holographic-text {
-    @apply bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-gradient-x bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-gradient-x bg-clip-text text-transparent transform-gpu;
+  }
+
+  .smooth-transition {
+    @apply transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .active-scale {
+    @apply active:scale-95 transition-transform duration-150;
   }
 }
 
@@ -58,14 +68,16 @@
 }
 
 .animate-gradient-x {
-  animation: gradient-x 120s ease infinite;
+  animation: gradient-x 60s ease infinite;
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Custom Scrollbar for sleek look */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
 }
