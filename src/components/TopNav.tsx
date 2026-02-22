@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -60,7 +62,7 @@ export function TopNav({ visible = true, userProfile, onProfileClick }: TopNavPr
       !visible && "-translate-y-[120%]"
     )}>
       <div className={cn(
-        "w-full max-w-lg glass rounded-xl py-1.5 px-3 flex items-center justify-between holographic-glow transition-all duration-300 relative h-11",
+        "w-full max-w-lg glass rounded-xl py-1.5 px-3 flex items-center justify-between holographic-glow transition-all duration-300 relative h-12",
         isExpanded && "ring-1 ring-primary/30"
       )}>
         {/* Search Container */}
@@ -106,9 +108,9 @@ export function TopNav({ visible = true, userProfile, onProfileClick }: TopNavPr
           </form>
         </div>
         
-        {/* Title */}
+        {/* Title - Increased size for 'gagah' look */}
         <h1 className={cn(
-          "absolute left-1/2 -translate-x-1/2 font-headline text-base font-bold holographic-text tracking-tight transition-all duration-300 pointer-events-none",
+          "absolute left-1/2 -translate-x-1/2 font-headline text-xl font-bold holographic-text tracking-tighter transition-all duration-300 pointer-events-none italic",
           isExpanded ? "opacity-0 scale-95" : "opacity-100 scale-100"
         )}>
           temsync
