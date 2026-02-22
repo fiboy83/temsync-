@@ -47,6 +47,8 @@ export default function Home() {
       const parsed = JSON.parse(savedProfile);
       setUserProfile(parsed);
       updateGlobalTheme(parsed.themeHue);
+    } else {
+      updateGlobalTheme(userProfile.themeHue);
     }
 
     async function loadAllPosts() {
@@ -57,17 +59,11 @@ export default function Home() {
         if (savedPostsJson) {
           allPosts = JSON.parse(savedPostsJson);
         } else {
-          // Fallback to dummy posts if nothing in storage
           allPosts = await generateInitialDummyPosts();
           localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(allPosts));
         }
         
         setPosts(allPosts);
-        
-        // If no saved profile, use first post theme
-        if (!savedProfile && allPosts.length > 0) {
-          updateGlobalTheme(allPosts[0].themeHue);
-        }
       } catch (error) {
         console.error("Failed to load posts:", error);
       } finally {
@@ -102,7 +98,8 @@ export default function Home() {
     const updatedPosts = [newPost, ...posts];
     setPosts(updatedPosts);
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
-    updateGlobalTheme(newPost.themeHue);
+    // Kita tetap sinkronkan jika user membuat post sendiri karena itu adalah warnanya
+    updateGlobalTheme(userProfile.themeHue);
   };
 
   return (
@@ -124,7 +121,6 @@ export default function Home() {
                 key={post.id} 
                 post={post} 
                 index={index} 
-                onProfileClick={updateGlobalTheme}
                 currentUser={userProfile}
               />
             ))}

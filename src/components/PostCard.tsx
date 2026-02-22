@@ -18,11 +18,10 @@ interface Comment {
 interface PostCardProps {
   post: Post;
   index: number;
-  onProfileClick?: (hue: number) => void;
   currentUser?: { username: string };
 }
 
-export function PostCard({ post, index, onProfileClick, currentUser }: PostCardProps) {
+export function PostCard({ post, index, currentUser }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>([]);
@@ -55,11 +54,6 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
     const nextState = !isLiked;
     setIsLiked(nextState);
     saveToLocal(nextState, localComments);
-    if (onProfileClick) onProfileClick(post.themeHue);
-  };
-
-  const handleProfileClick = () => {
-    if (onProfileClick) onProfileClick(post.themeHue);
   };
 
   const handleAddComment = (e: React.FormEvent) => {
@@ -77,7 +71,6 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
     setLocalComments(updatedComments);
     setNewComment('');
     saveToLocal(isLiked, updatedComments);
-    if (onProfileClick) onProfileClick(post.themeHue);
   };
 
   return (
@@ -87,10 +80,7 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
     >
       {/* Header */}
       <div className="p-3 flex items-center justify-between">
-        <div 
-          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-all active:scale-95"
-          onClick={handleProfileClick}
-        >
+        <div className="flex items-center gap-2">
           <div className="relative w-8 h-8 rounded-full overflow-hidden border-2" style={{ borderColor: `hsl(${post.themeHue}, 100%, 64%)` }}>
             <Image 
               src={post.profilePicture} 
@@ -112,7 +102,7 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
       </div>
 
       {/* Main Content Image */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden cursor-pointer" onClick={handleProfileClick}>
+      <div className="relative aspect-[4/5] w-full overflow-hidden">
         <Image 
           src={post.imageUrl} 
           alt="Holographic Backdrop" 
@@ -152,10 +142,7 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
           </button>
           
           <button 
-            onClick={() => {
-              setShowComments(!showComments);
-              handleProfileClick();
-            }}
+            onClick={() => setShowComments(!showComments)}
             className="flex items-center gap-1.5 group/btn"
           >
             <MessageCircle 
@@ -186,7 +173,10 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
           <div className="max-h-40 overflow-y-auto space-y-3 mb-3 custom-scrollbar">
             {localComments.map((comment) => (
               <div key={comment.id} className="flex flex-col">
-                <span className="text-[10px] font-bold text-primary">{comment.username}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold" style={{ color: `hsl(${post.themeHue}, 100%, 64%)` }}>{comment.username}</span>
+                  <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
                 <span className="text-xs text-white/80">{comment.text}</span>
               </div>
             ))}
@@ -205,7 +195,8 @@ export function PostCard({ post, index, onProfileClick, currentUser }: PostCardP
             <Button 
               type="submit" 
               size="icon" 
-              className="h-8 w-8 rounded-xl bg-primary hover:bg-primary/80"
+              className="h-8 w-8 rounded-xl"
+              style={{ backgroundColor: `hsl(${post.themeHue}, 100%, 64%)` }}
               disabled={!newComment.trim()}
             >
               <Send className="w-3 h-3 text-white" />
