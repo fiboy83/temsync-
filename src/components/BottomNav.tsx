@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ShoppingBag, Repeat, Plus, Mail, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -58,12 +60,18 @@ export function BottomNav({ visible = true, onPostClick, userProfile }: BottomNa
           <Plus className="w-5 h-5" />
         </button>
 
-        <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-white/10 transition-colors">
+        <Link 
+          href="/inbox"
+          className={cn(
+            "flex flex-col items-center group py-1 px-2 rounded-xl transition-colors",
+            pathname === '/inbox' ? "bg-white/5" : "hover:bg-white/5"
+          )}
+        >
+          <div className="p-1">
             <Mail className="w-3.5 h-3.5" style={{ color: hueColor }} />
           </div>
           <span className="text-[8px] font-bold lowercase tracking-widest opacity-100" style={{ color: hueColor }}>inbox</span>
-        </button>
+        </Link>
 
         <Link 
           href="/"

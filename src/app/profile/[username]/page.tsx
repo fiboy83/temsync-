@@ -6,7 +6,8 @@ import { BottomNav } from '@/components/BottomNav';
 import { PostCard } from '@/components/PostCard';
 import { ProfileSheet } from '@/components/ProfileSheet';
 import { CreatePostDialog } from '@/components/CreatePostDialog';
-import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Calendar } from 'lucide-react';
+import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
@@ -86,11 +87,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     );
   }
 
+  const isSelf = viewedUser?.username.toLowerCase() === currentUserProfile.username.toLowerCase();
+
   return (
     <main className="min-h-screen pb-20 bg-background">
       <TopNav userProfile={currentUserProfile} onProfileClick={() => setIsProfileOpen(true)} />
       
-      {/* Header / Banner Area */}
       <div className="relative h-40 w-full overflow-hidden">
         <div 
           className="absolute inset-0 opacity-30 blur-3xl animate-pulse"
@@ -108,11 +110,22 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         </div>
       </div>
 
-      {/* Profile Info */}
       <div className="max-w-lg mx-auto px-6 -mt-12 relative z-10 text-left">
         <div className="flex flex-col gap-4">
-          <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
-            <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
+          <div className="flex justify-between items-end">
+            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
+              <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
+            </div>
+            
+            {!isSelf && (
+              <Button 
+                className="rounded-xl h-9 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold lowercase tracking-widest transition-all"
+                style={{ color: hueColor, borderColor: `${hueColor}33` }}
+              >
+                <Send className="w-3.5 h-3.5 mr-2" />
+                send signal
+              </Button>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -129,11 +142,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </p>
 
           <div className="flex flex-wrap gap-4 pt-2">
-            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
+            <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-bold lowercase tracking-widest">
               <MapPin className="w-3 h-3" style={{ color: hueColor }} />
               neo tokyo sector 7
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-bold lowercase tracking-widest">
+            <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-bold lowercase tracking-widest">
               <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
@@ -142,16 +155,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div className="flex gap-8 py-3 border-y border-white/5 mt-1">
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">syncs</span>
+              <span className="text-[8px] text-white/80 lowercase tracking-widest font-bold">syncs</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[8px] text-white/60 lowercase tracking-widest font-bold">resonance</span>
+              <span className="text-[8px] text-white/80 lowercase tracking-widest font-bold">resonance</span>
             </div>
           </div>
         </div>
 
-        {/* User Posts Feed */}
         <div className="mt-8 space-y-4">
           <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/60 mb-4">
             recent stream
