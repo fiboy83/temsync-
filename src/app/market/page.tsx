@@ -13,7 +13,7 @@ interface DexToken {
   url: string;
   chainId: string;
   tokenAddress: string;
-  icon: string;
+  icon?: string;
   header?: string;
   description?: string;
   links?: { type?: string; label?: string; url: string }[];
@@ -51,7 +51,15 @@ export default function MarketPage() {
     fetchMarketData();
   }, []);
 
-  const hueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
+  const isValidUrl = (url: string | undefined): url is string => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return (
     <main className="min-h-screen pt-14 pb-20 bg-background transition-colors duration-700">
@@ -85,7 +93,7 @@ export default function MarketPage() {
                 <div className="flex gap-4">
                   {/* Token Icon */}
                   <div className="relative w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 border border-white/10">
-                    {token.icon ? (
+                    {token.icon && isValidUrl(token.icon) ? (
                       <Image src={token.icon} alt="token" fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-white/5 flex items-center justify-center">
