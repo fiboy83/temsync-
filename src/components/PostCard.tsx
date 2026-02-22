@@ -81,10 +81,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   const hasMedia = !!post.imageUrl || !!post.videoUrl;
   const isShortText = post.content.length < 20;
-  const isTooLong = post.content.length > 50;
+  const isTooLong = post.content.length > 200; // Diubah ke 200 karakter
   
   const displayedContent = isTooLong && !isExpanded 
-    ? `${post.content.substring(0, 50)}...` 
+    ? `${post.content.substring(0, 200)}...` // Diubah ke 200 karakter
     : post.content;
 
   return (
@@ -103,7 +103,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               className="object-cover"
             />
           </div>
-          <div>
+          <div className="text-left">
             <h3 className="font-bold text-sm tracking-tight text-white/90">{post.username}</h3>
             <p className="text-[10px] text-white/30 font-medium uppercase tracking-widest">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -149,7 +149,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[10px] font-bold text-primary mt-1 uppercase tracking-widest hover:underline"
+                    className="text-[10px] font-bold mt-1 uppercase tracking-widest hover:underline"
                     style={{ color: hueColor }}
                   >
                     {isExpanded ? 'Show less' : 'Read more'}
@@ -240,7 +240,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       {/* Comment Section */}
       {showComments && (
         <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
-          <div className="max-h-48 overflow-y-auto space-y-4 mb-4 custom-scrollbar">
+          <div className="max-h-48 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left">
             {localComments.map((comment) => (
               <div key={comment.id} className="flex flex-col gap-1">
                 <div className="flex justify-between items-center">
