@@ -137,7 +137,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-end">
             <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
-              <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
+              {viewedUser?.avatar ? (
+                <Image src={viewedUser.avatar} alt={username} fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-white/10" />
+              )}
             </div>
             
             {isSelf ? (

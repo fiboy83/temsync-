@@ -118,7 +118,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // user cancelled or share failed
+        // user cancelled
       }
     } else {
       try {
@@ -186,7 +186,11 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               style={{ borderColor: hueColor }}
               onClick={(e) => e.stopPropagation()}
             >
-              <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
+              {post.profilePicture ? (
+                <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-white/10" />
+              )}
             </Link>
             <div className="text-left">
               <Link 
@@ -271,18 +275,20 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         </div>
       </div>
 
-      {/* Focus Mode Dialog */}
       <Dialog open={isFocusOpen} onOpenChange={setIsFocusOpen}>
         <DialogContent className="sm:max-w-[480px] h-[90vh] bg-card/95 backdrop-blur-3xl border-white/20 rounded-[2.5rem] p-0 overflow-hidden flex flex-col shadow-2xl">
           <DialogHeader className="hidden">
             <DialogTitle>Post Focus</DialogTitle>
           </DialogHeader>
 
-          {/* Fixed Header */}
           <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md sticky top-0 z-10">
             <div className="flex items-center gap-3">
               <div className="relative w-9 h-9 rounded-full overflow-hidden border-2" style={{ borderColor: hueColor }}>
-                <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
+                {post.profilePicture ? (
+                  <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-white/10" />
+                )}
               </div>
               <Link href={`/profile/${post.username.toLowerCase()}`} className="text-sm font-bold lowercase hover:underline" style={{ color: hueColor }}>{post.username}</Link>
             </div>
@@ -294,9 +300,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             </button>
           </div>
 
-          {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {/* Original Post Content */}
             <div className="p-6 space-y-4">
               <p className="text-[16px] leading-relaxed text-white/90 lowercase">
                 {post.content}
@@ -323,7 +327,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               </div>
             </div>
 
-            {/* Comments Area */}
             <div className="px-6 pb-24 space-y-4">
               {localComments.map((comment) => (
                 <div key={comment.id} className="flex flex-col items-start animate-fade-in">
@@ -339,7 +342,11 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                         className="relative w-6 h-6 rounded-full overflow-hidden border"
                         style={{ borderColor: `hsl(${comment.themeHue}, 100%, 64%)` }}
                       >
-                        <Image src={comment.avatar} alt={comment.username} fill className="object-cover" />
+                        {comment.avatar ? (
+                          <Image src={comment.avatar} alt={comment.username} fill className="object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-white/10" />
+                        )}
                       </div>
                       <Link 
                         href={`/profile/${comment.username.toLowerCase()}`}
@@ -366,7 +373,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             </div>
           </div>
 
-          {/* Comment Input Fixed at Bottom */}
           <div className="p-4 bg-background/80 backdrop-blur-3xl border-t border-white/10 sticky bottom-0">
             <form onSubmit={handleAddComment} className="flex gap-3 max-w-md mx-auto">
               <Input 
