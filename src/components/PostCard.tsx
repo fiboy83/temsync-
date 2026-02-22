@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Reply } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Reply, Bookmark } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -26,20 +26,29 @@ interface PostCardProps {
   currentUser?: UserProfile;
 }
 
+const BOOKMARKS_KEY = 'temsync_bookmarks';
+
 export function PostCard({ post, index, currentUser }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Load interactions and comments from localStorage
+  // Load interactions and bookmarks from localStorage
   useEffect(() => {
     const savedData = localStorage.getItem(`temsync_post_interaction_${post.id}`);
     if (savedData) {
       const parsed = JSON.parse(savedData);
       setIsLiked(parsed.liked || false);
       setLocalComments(parsed.comments || []);
+    }
+
+    const savedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
+    if (savedBookmarks) {
+      const bookmarks = JSON.parse(savedBookmarks);
+      setIsBookmarked(bookmarks.includes(post.id));
     }
   }, [post.id]);
 
@@ -48,6 +57,23 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       liked,
       comments
     }));
+  };
+
+  const toggleBookmark = () => {
+    const savedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
+    let bookmarks = savedBookmarks ? JSON.parse(savedBookmarks) : [];
+    
+    if (isBookmarked) {
+      bookmarks = bookmarks.filter((id: string) => id !== post.id);
+    } else {
+      bookmarks.push(post.id);
+    }
+    
+    localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+    setIsBookmarked(!isBookmarked);
+    
+    // Trigger global event for components to re-sync bookmarks if needed
+    window.dispatchEvent(new Event('bookmarksUpdated'));
   };
 
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
@@ -114,11 +140,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   return (
     <div 
-      className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] overflow-hidden mb-4 animate-fade-in border transition-all duration-300 group"
+      className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] overflow-hidden mb-3 animate-fade-in border transition-all duration-300 group"
       style={cardStyle}
     >
-      {/* Header */}
-      <div className="px-4 py-3 flex items-center justify-between">
+      <div className="px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <Link href={`/profile/${post.username.toLowerCase()}`} className="relative w-8 h-8 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
             <Image 
@@ -129,21 +154,20 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             />
           </Link>
           <div className="text-left">
-            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-xs tracking-tight transition-colors hover:underline block lowercase" style={{ color: hueColor }}>
+            <Link href={`/profile/${post.username.toLowerCase()}`} className="font-bold text-[11px] tracking-tight transition-colors hover:underline block lowercase" style={{ color: hueColor }}>
               {post.username.toLowerCase()}
             </Link>
-            <p className="text-[8px] text-white/60 font-medium lowercase tracking-[0.15em]">
+            <p className="text-[8px] text-white/80 font-bold lowercase tracking-[0.15em]">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
             </p>
           </div>
         </div>
-        <button className="p-1.5 text-white/40 hover:text-white/70 transition-colors">
+        <button className="p-1.5 text-white/60 hover:text-white transition-colors">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[80px] flex items-center p-5")}>
+      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[60px] flex items-center p-4")}>
         {hasMedia ? (
           <div className="absolute inset-1.5 rounded-[1.25rem] overflow-hidden border border-white/5">
             {post.videoUrl ? (
@@ -165,18 +189,18 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             ) : null}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50" />
             
-            <div className="absolute bottom-3 left-3 right-3 bg-black/30 backdrop-blur-lg p-3 rounded-xl border border-white/5">
+            <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/40 backdrop-blur-lg p-2.5 rounded-xl border border-white/5">
               <div className="text-left">
                 <p className={cn(
                   "font-medium leading-tight text-white/95",
-                  isShortText ? "text-base holographic-text font-headline italic" : "text-[11px]"
+                  isShortText ? "text-sm holographic-text font-headline italic" : "text-[10px]"
                 )}>
                   {displayedContent}
                 </p>
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[9px] font-bold mt-1 lowercase tracking-widest hover:underline"
+                    className="text-[8px] font-bold mt-1.5 lowercase tracking-[0.2em] hover:underline"
                     style={{ color: hueColor }}
                   >
                     {isExpanded ? 'less' : 'more'}
@@ -191,14 +215,14 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
              <div className="px-2">
                 <p className={cn(
                   "font-headline font-medium leading-snug italic",
-                  isShortText ? "text-xl holographic-text" : "text-sm text-white/80"
+                  isShortText ? "text-lg holographic-text" : "text-[13px] text-white/90"
                 )}>
                   "{displayedContent}"
                 </p>
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[9px] font-bold mt-1.5 lowercase tracking-widest hover:underline"
+                    className="text-[8px] font-bold mt-1.5 lowercase tracking-[0.2em] hover:underline"
                     style={{ color: hueColor }}
                   >
                     {isExpanded ? 'less' : 'more'}
@@ -209,25 +233,24 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         )}
       </div>
 
-      {/* Actions */}
-      <div className="px-5 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-5">
+      <div className="px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-4">
           <button 
             onClick={handleLike}
             className="flex items-center gap-1.5 group/btn"
           >
             <Heart 
               className={cn(
-                "w-4 h-4 transition-all duration-300",
+                "w-3.5 h-3.5 transition-all duration-300",
                 isLiked 
                   ? "fill-current scale-110" 
-                  : "text-white/40 group-hover/btn:scale-110"
+                  : "text-white/60 group-hover/btn:scale-110"
               )} 
               style={{ color: isLiked ? hueColor : undefined }}
             />
             <span className={cn(
-              "text-[10px] font-bold transition-colors",
-              isLiked ? "text-white" : "text-white/70"
+              "text-[9px] font-bold transition-colors",
+              isLiked ? "text-white" : "text-white/80"
             )}
             style={{ color: isLiked ? hueColor : undefined }}
             >
@@ -241,16 +264,16 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           >
             <MessageCircle 
               className={cn(
-                "w-4 h-4 transition-all duration-300",
+                "w-3.5 h-3.5 transition-all duration-300",
                 showComments 
                   ? "fill-current scale-110" 
-                  : "text-white/40 group-hover/btn:scale-110"
+                  : "text-white/60 group-hover/btn:scale-110"
               )} 
               style={{ color: showComments ? hueColor : undefined }}
             />
             <span className={cn(
-              "text-[10px] font-bold transition-colors",
-              showComments ? "text-white" : "text-white/70"
+              "text-[9px] font-bold transition-colors",
+              showComments ? "text-white" : "text-white/80"
             )}
             style={{ color: showComments ? hueColor : undefined }}
             >
@@ -259,18 +282,31 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </button>
         </div>
         
-        <button className="p-1.5 text-white/40 hover:text-white transition-colors">
-          <Share2 className="w-4 h-4" style={{ color: hueColor }} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={toggleBookmark}
+            className="p-1.5 transition-colors group/bookmark"
+          >
+            <Bookmark 
+              className={cn(
+                "w-3.5 h-3.5 transition-all",
+                isBookmarked ? "fill-current scale-110" : "text-white/60 group-hover/bookmark:scale-110"
+              )} 
+              style={{ color: isBookmarked ? hueColor : undefined }} 
+            />
+          </button>
+          <button className="p-1.5 text-white/60 hover:text-white transition-colors">
+            <Share2 className="w-3.5 h-3.5" style={{ color: hueColor }} />
+          </button>
+        </div>
       </div>
 
-      {/* Comment Section */}
       {showComments && (
         <div 
           className="px-4 pb-4 pt-1 animate-in slide-in-from-top-1 duration-200 border-t"
           style={{ borderColor: hueColorDeepMuted }}
         >
-          <div className="max-h-48 overflow-y-auto space-y-2.5 mb-3 custom-scrollbar text-left scroll-smooth">
+          <div className="max-h-40 overflow-y-auto space-y-2.5 mb-3 custom-scrollbar text-left scroll-smooth">
             {localComments.map((comment) => {
               const commentHueColor = `hsl(${comment.themeHue}, 100%, 64%)`;
               const commentHueColorMuted = `hsl(${comment.themeHue}, 100%, 64%, 0.15)`;
@@ -278,40 +314,36 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               return (
                 <div key={comment.id} className="flex flex-col gap-0.5 group/comment rounded-xl p-0.5">
                   <div className="flex justify-between items-center px-1">
-                    <Link href={`/profile/${comment.username.toLowerCase()}`} className="text-[9px] font-bold lowercase tracking-wider hover:underline" style={{ color: commentHueColor }}>
+                    <Link href={`/profile/${comment.username.toLowerCase()}`} className="text-[8px] font-bold lowercase tracking-wider hover:underline" style={{ color: commentHueColor }}>
                       {comment.username.toLowerCase()}
                     </Link>
-                    <span className="text-[7px] text-white/50">
+                    <span className="text-[7px] text-white/80 font-bold">
                       {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
                     </span>
                   </div>
                   <div 
-                    className="text-[11px] text-white/85 bg-white/5 p-2 rounded-xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
+                    className="text-[10px] text-white/90 bg-white/5 p-2 rounded-xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
                     style={{ borderColor: commentHueColorMuted }}
                   >
                     {comment.text}
                     
-                    <div className="flex items-center gap-3 mt-2 pt-1.5 border-t border-white/5 opacity-60 group-hover/comment:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3 mt-1.5 pt-1.5 border-t border-white/5 opacity-80 group-hover/comment:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleCommentLike(comment.id)}
                         className="flex items-center gap-1 hover:scale-110 transition-transform"
                       >
                         <Heart 
-                          className={cn("w-2.5 h-2.5", comment.isLiked && "fill-current")} 
+                          className={cn("w-2 h-2", comment.isLiked && "fill-current")} 
                           style={{ color: comment.isLiked ? commentHueColor : 'white' }} 
                         />
                         {comment.likes && comment.likes > 0 ? (
-                          <span className="text-[7px] font-bold" style={{ color: comment.isLiked ? commentHueColor : 'white' }}>{comment.likes}</span>
+                          <span className="text-[6px] font-bold" style={{ color: comment.isLiked ? commentHueColor : 'white' }}>{comment.likes}</span>
                         ) : null}
                       </button>
                       
                       <button className="flex items-center gap-1 hover:scale-110 transition-transform">
-                        <Reply className="w-2.5 h-2.5 text-white" />
-                        <span className="text-[7px] font-bold text-white lowercase tracking-tighter">reply</span>
-                      </button>
-                      
-                      <button className="flex items-center gap-1 hover:scale-110 transition-transform ml-auto">
-                        <Share2 className="w-2.5 h-2.5 text-white opacity-40" />
+                        <Reply className="w-2 h-2 text-white" />
+                        <span className="text-[6px] font-bold text-white lowercase tracking-tighter">reply</span>
                       </button>
                     </div>
                   </div>
@@ -319,7 +351,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               );
             })}
             {localComments.length === 0 && (
-              <p className="text-[8px] text-white/50 text-center py-4 italic lowercase tracking-widest">
+              <p className="text-[7px] text-white/50 text-center py-4 italic lowercase tracking-[0.3em] font-bold">
                 aura is silent...
               </p>
             )}
@@ -331,7 +363,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 placeholder="beam thoughts..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="h-8 text-[11px] bg-white/5 border-white/10 rounded-xl focus:ring-1 focus:ring-offset-0 pr-8"
+                className="h-7 text-[10px] bg-white/5 border-white/10 rounded-lg focus:ring-1 focus:ring-offset-0 pr-8 lowercase placeholder:lowercase"
                 style={{ 
                   '--tw-ring-color': `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.15)`,
                   borderColor: newComment.trim() ? `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.15)` : undefined 
@@ -341,14 +373,14 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             <Button 
               type="submit" 
               size="icon" 
-              className="h-8 w-8 rounded-xl shadow-md transition-all active:scale-90 disabled:opacity-20"
+              className="h-7 w-7 rounded-lg shadow-md transition-all active:scale-90 disabled:opacity-20"
               style={{ 
                 backgroundColor: `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)`,
                 boxShadow: newComment.trim() ? `0 2px 8px -1px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.3)` : 'none'
               }}
               disabled={!newComment.trim()}
             >
-              <Send className="w-3.5 h-3.5 text-white" />
+              <Send className="w-3 h-3 text-white" />
             </Button>
           </form>
         </div>

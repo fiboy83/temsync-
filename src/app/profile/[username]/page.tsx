@@ -2,18 +2,21 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { PostCard } from '@/components/PostCard';
-import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import type { UserProfile } from '@/app/page';
 
 const POSTS_STORAGE_KEY = 'temsync_all_posts';
+const BOOKMARKS_KEY = 'temsync_bookmarks';
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
@@ -28,14 +31,24 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       setCurrentUserProfile(JSON.parse(savedProfile));
     }
 
-    async function loadUserContent() {
+    const loadUserContent = () => {
       try {
         const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
+        const savedBookmarksJson = localStorage.getItem(BOOKMARKS_KEY);
+        const bookmarkIds = savedBookmarksJson ? JSON.parse(savedBookmarksJson) : [];
+
         if (savedPostsJson) {
           const allPosts: Post[] = JSON.parse(savedPostsJson);
+          
+          // Filter user's posts
           const userPosts = allPosts.filter(p => p.username.toLowerCase() === username.toLowerCase());
           setPosts(userPosts);
 
+          // Filter bookmarked posts
+          const bookmarked = allPosts.filter(p => bookmarkIds.includes(p.id));
+          setBookmarkedPosts(bookmarked);
+
+          // Determine viewed user profile
           if (username.toLowerCase() === currentUserProfile.username.toLowerCase()) {
             setViewedUser(currentUserProfile);
           } else if (userPosts.length > 0) {
@@ -57,8 +70,13 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     loadUserContent();
+
+    // Listen for bookmark updates from PostCard
+    window.addEventListener('bookmarksUpdated', loadUserContent);
+    return () => window.removeEventListener('bookmarksUpdated', loadUserContent);
   }, [username, currentUserProfile.username]);
 
   const hueColor = viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 64%)` : 'hsl(var(--primary))';
@@ -146,28 +164,59 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </div>
         </div>
 
-        <div className="mt-10 space-y-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/60">
-              recent stream
-            </h2>
-            <Sparkles className="w-3.5 h-3.5 text-white/20" />
-          </div>
-          
-          {posts.map((post, index) => (
-            <PostCard 
-              key={post.id} 
-              post={post} 
-              index={index} 
-              currentUser={currentUserProfile}
-            />
-          ))}
+        <div className="mt-8">
+          <Tabs defaultValue="syncs" className="w-full">
+            <TabsList className="w-full bg-white/5 border border-white/10 h-10 p-1 rounded-xl mb-6">
+              <TabsTrigger 
+                value="syncs" 
+                className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10"
+              >
+                <Sparkles className="w-3 h-3 mr-2" />
+                syncs
+              </TabsTrigger>
+              {isSelf && (
+                <TabsTrigger 
+                  value="bookmarks" 
+                  className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10"
+                >
+                  <Bookmark className="w-3 h-3 mr-2" />
+                  bookmarks
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-          {posts.length === 0 && (
-            <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-              <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no digital signals found in this timeline.</p>
-            </div>
-          )}
+            <TabsContent value="syncs" className="space-y-4 animate-fade-in outline-none">
+              {posts.map((post, index) => (
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  index={index} 
+                  currentUser={currentUserProfile}
+                />
+              ))}
+              {posts.length === 0 && (
+                <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+                  <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no digital signals found in this timeline.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="bookmarks" className="space-y-4 animate-fade-in outline-none">
+              {bookmarkedPosts.map((post, index) => (
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  index={index} 
+                  currentUser={currentUserProfile}
+                />
+              ))}
+              {bookmarkedPosts.length === 0 && (
+                <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+                  <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no bookmarked signals in your cache.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </main>
