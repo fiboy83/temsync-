@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Play } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Send } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Load interactions and comments from localStorage
   useEffect(() => {
@@ -79,6 +80,12 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   };
 
   const hasMedia = !!post.imageUrl || !!post.videoUrl;
+  const isShortText = post.content.length < 20;
+  const isTooLong = post.content.length > 50;
+  
+  const displayedContent = isTooLong && !isExpanded 
+    ? `${post.content.substring(0, 50)}...` 
+    : post.content;
 
   return (
     <div 
@@ -109,7 +116,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       </div>
 
       {/* Main Content */}
-      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[150px] flex items-center justify-center p-8")}>
+      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[120px] flex items-center p-8")}>
         {hasMedia ? (
           <div className="absolute inset-4 rounded-[2rem] overflow-hidden shadow-inner border border-white/5">
             {post.videoUrl ? (
@@ -132,17 +139,45 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
             
             <div className="absolute bottom-4 left-4 right-4 bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-2xl">
-              <p className="text-xs font-medium leading-relaxed text-white/95 text-right">
-                {post.content}
-              </p>
+              <div className="text-left">
+                <p className={cn(
+                  "font-medium leading-relaxed text-white/95",
+                  isShortText ? "text-lg holographic-text font-headline italic" : "text-xs"
+                )}>
+                  {displayedContent}
+                </p>
+                {isTooLong && (
+                  <button 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-[10px] font-bold text-primary mt-1 uppercase tracking-widest hover:underline"
+                    style={{ color: hueColor }}
+                  >
+                    {isExpanded ? 'Show less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ) : (
-          <div className="w-full text-center">
+          <div className="w-full text-left">
              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-20 pointer-events-none" />
-             <p className="text-lg font-headline font-medium leading-relaxed italic holographic-text px-4 text-right">
-              "{post.content}"
-            </p>
+             <div className="px-4">
+                <p className={cn(
+                  "font-headline font-medium leading-relaxed italic",
+                  isShortText ? "text-2xl holographic-text" : "text-base text-white/80"
+                )}>
+                  "{displayedContent}"
+                </p>
+                {isTooLong && (
+                  <button 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-[10px] font-bold mt-2 uppercase tracking-widest hover:underline"
+                    style={{ color: hueColor }}
+                  >
+                    {isExpanded ? 'Show less' : 'Read more'}
+                  </button>
+                )}
+             </div>
           </div>
         )}
       </div>
