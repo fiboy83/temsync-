@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Reply } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
@@ -119,18 +120,18 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
       {/* Header */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-full overflow-hidden border-2" style={{ borderColor: hueColor }}>
+          <Link href={`/profile/${post.username}`} className="relative w-10 h-10 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
             <Image 
               src={post.profilePicture} 
               alt={post.username} 
               fill 
               className="object-cover"
             />
-          </div>
+          </Link>
           <div className="text-left">
-            <h3 className="font-bold text-sm tracking-tight transition-colors" style={{ color: hueColor }}>
+            <Link href={`/profile/${post.username}`} className="font-bold text-sm tracking-tight transition-colors hover:underline block" style={{ color: hueColor }}>
               {post.username}
-            </h3>
+            </Link>
             <p className="text-[10px] text-white/30 font-medium uppercase tracking-widest">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </p>
@@ -277,9 +278,9 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               return (
                 <div key={comment.id} className="flex flex-col gap-1 group/comment rounded-2xl p-1 transition-all">
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: commentHueColor }}>
+                    <Link href={`/profile/${comment.username}`} className="text-[10px] font-bold uppercase tracking-widest hover:underline" style={{ color: commentHueColor }}>
                       {comment.username}
-                    </span>
+                    </Link>
                     <span className="text-[8px] text-white/20">
                       {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
