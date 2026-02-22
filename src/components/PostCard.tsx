@@ -132,7 +132,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
             
             <div className="absolute bottom-4 left-4 right-4 bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-2xl">
-              <p className="text-xs font-medium leading-relaxed text-white/95">
+              <p className="text-xs font-medium leading-relaxed text-white/95 text-right">
                 {post.content}
               </p>
             </div>
@@ -140,7 +140,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         ) : (
           <div className="w-full text-center">
              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-20 pointer-events-none" />
-             <p className="text-lg font-headline font-medium leading-relaxed italic holographic-text px-4">
+             <p className="text-lg font-headline font-medium leading-relaxed italic holographic-text px-4 text-right">
               "{post.content}"
             </p>
           </div>
