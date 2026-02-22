@@ -4,13 +4,27 @@ import React, { useEffect, useState, useRef } from 'react';
 import { TopNav } from '@/components/TopNav';
 import { BottomNav } from '@/components/BottomNav';
 import { PostCard } from '@/components/PostCard';
+import { ProfileSheet } from '@/components/ProfileSheet';
 import { generateInitialDummyPosts, Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { Loader2 } from 'lucide-react';
+
+export interface UserProfile {
+  username: string;
+  avatar: string;
+  themeHue: number;
+}
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    username: 'NeonTraveler',
+    avatar: 'https://picsum.photos/seed/me/100/100',
+    themeHue: 266,
+  });
+  
   const lastScrollY = useRef(0);
 
   // Function to change the global theme based on a hue
@@ -23,12 +37,21 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Load profile from localStorage
+    const savedProfile = localStorage.getItem('temsync_user_profile');
+    if (savedProfile) {
+      const parsed = JSON.parse(savedProfile);
+      setUserProfile(parsed);
+      updateGlobalTheme(parsed.themeHue);
+    }
+
     async function loadPosts() {
       try {
         const dummyPosts = await generateInitialDummyPosts();
         setPosts(dummyPosts);
         
-        if (dummyPosts.length > 0) {
+        // If no saved profile, use first post theme
+        if (!savedProfile && dummyPosts.length > 0) {
           updateGlobalTheme(dummyPosts[0].themeHue);
         }
       } catch (error) {
@@ -43,10 +66,8 @@ export default function Home() {
       const currentScrollY = window.scrollY;
       
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Scrolling down
         setNavVisible(false);
       } else if (currentScrollY < lastScrollY.current) {
-        // Scrolling up
         setNavVisible(true);
       }
       
@@ -56,6 +77,12 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleProfileUpdate = (newProfile: UserProfile) => {
+    setUserProfile(newProfile);
+    localStorage.setItem('temsync_user_profile', JSON.stringify(newProfile));
+    updateGlobalTheme(newProfile.themeHue);
+  };
 
   return (
     <main className="min-h-screen pt-14 pb-16 md:pt-16 md:pb-20 transition-colors duration-700">
@@ -89,7 +116,17 @@ export default function Home() {
         )}
       </div>
 
-      <BottomNav visible={navVisible} />
+      <BottomNav 
+        visible={navVisible} 
+        onProfileClick={() => setIsProfileOpen(true)} 
+      />
+
+      <ProfileSheet 
+        isOpen={isProfileOpen} 
+        onOpenChange={setIsProfileOpen} 
+        profile={userProfile}
+        onUpdate={handleProfileUpdate}
+      />
     </main>
   );
 }

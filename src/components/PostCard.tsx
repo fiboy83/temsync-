@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
@@ -16,7 +16,21 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isCommented, setIsCommented] = useState(false);
 
-  // Local theme variables for this specific card
+  // Load interactions from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(`temsync_post_${post.id}`);
+    if (saved) {
+      const data = JSON.parse(saved);
+      setIsLiked(data.liked || false);
+      setIsCommented(data.commented || false);
+    }
+  }, [post.id]);
+
+  // Persist interactions to localStorage
+  const saveInteraction = (liked: boolean, commented: boolean) => {
+    localStorage.setItem(`temsync_post_${post.id}`, JSON.stringify({ liked, commented }));
+  };
+
   const cardStyle = {
     '--post-primary': `${post.themeHue} 100% 64%`,
     '--post-secondary': `${(post.themeHue + 180) % 360} 100% 50%`,
@@ -24,15 +38,18 @@ export function PostCard({ post, index, onProfileClick }: PostCardProps) {
   } as React.CSSProperties;
 
   const handleInteraction = (type: 'like' | 'comment' | 'share' | 'profile') => {
-    // Sinkronisasi seluruh layout temsync dengan warna avatar pemilik post
     if (onProfileClick) {
       onProfileClick(post.themeHue);
     }
     
     if (type === 'like') {
-      setIsLiked(!isLiked);
+      const nextState = !isLiked;
+      setIsLiked(nextState);
+      saveInteraction(nextState, isCommented);
     } else if (type === 'comment') {
-      setIsCommented(!isCommented);
+      const nextState = !isCommented;
+      setIsCommented(nextState);
+      saveInteraction(isLiked, nextState);
     }
   };
 

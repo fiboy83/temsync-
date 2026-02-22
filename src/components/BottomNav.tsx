@@ -4,9 +4,10 @@ import { cn } from '@/lib/utils';
 
 interface BottomNavProps {
   visible?: boolean;
+  onProfileClick?: () => void;
 }
 
-export function BottomNav({ visible = true }: BottomNavProps) {
+export function BottomNav({ visible = true, onProfileClick }: BottomNavProps) {
   return (
     <nav className={cn(
       "fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md transition-transform duration-500 ease-in-out",
@@ -38,7 +39,10 @@ export function BottomNav({ visible = true }: BottomNavProps) {
           <span className="text-[7px] font-medium uppercase tracking-widest text-foreground/40">Inbox</span>
         </button>
 
-        <button className="flex flex-col items-center group">
+        <button 
+          onClick={onProfileClick}
+          className="flex flex-col items-center group"
+        >
           <div className="p-1 rounded-lg group-hover:bg-primary/10 transition-colors">
             <UserIcon className="w-4 h-4 text-foreground/70 group-hover:text-primary" />
           </div>
