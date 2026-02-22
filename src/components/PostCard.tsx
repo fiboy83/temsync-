@@ -53,13 +53,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
   const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.2)`;
   const hueColorDeepMuted = `hsl(${post.themeHue}, 100%, 64%, 0.05)`;
-  const hueColorGlow = `0 0 25px -5px hsl(${post.themeHue}, 100%, 64%, 0.3)`;
+  const hueColorGlow = `0 0 15px -5px hsl(${post.themeHue}, 100%, 64%, 0.2)`;
 
   const cardStyle = {
     '--post-primary': `${post.themeHue} 100% 64%`,
     boxShadow: hueColorGlow,
     borderColor: hueColorMuted,
-    animationDelay: `${index * 150}ms`,
+    animationDelay: `${index * 100}ms`,
   } as React.CSSProperties;
 
   const handleLike = () => {
@@ -114,13 +114,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   return (
     <div 
-      className="bg-card/30 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden mb-8 animate-fade-in border transition-all duration-500 group"
+      className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] overflow-hidden mb-4 animate-fade-in border transition-all duration-300 group"
       style={cardStyle}
     >
-      {/* Header */}
-      <div className="p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href={`/profile/${post.username}`} className="relative w-10 h-10 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
+      {/* Header - More Compact */}
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Link href={`/profile/${post.username}`} className="relative w-8 h-8 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: hueColor }}>
             <Image 
               src={post.profilePicture} 
               alt={post.username} 
@@ -129,23 +129,23 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             />
           </Link>
           <div className="text-left">
-            <Link href={`/profile/${post.username}`} className="font-bold text-sm tracking-tight transition-colors hover:underline block" style={{ color: hueColor }}>
+            <Link href={`/profile/${post.username}`} className="font-bold text-xs tracking-tight transition-colors hover:underline block" style={{ color: hueColor }}>
               {post.username}
             </Link>
-            <p className="text-[10px] text-white/30 font-medium uppercase tracking-widest">
+            <p className="text-[8px] text-white/30 font-medium uppercase tracking-[0.15em]">
               {new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </p>
           </div>
         </div>
-        <button className="p-2 text-white/20 hover:text-white/60 transition-colors">
-          <MoreHorizontal className="w-5 h-5" />
+        <button className="p-1.5 text-white/20 hover:text-white/60 transition-colors">
+          <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[120px] flex items-center p-8")}>
+      {/* Main Content - Reduced Insets */}
+      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[80px] flex items-center p-5")}>
         {hasMedia ? (
-          <div className="absolute inset-4 rounded-[2rem] overflow-hidden shadow-inner border border-white/5">
+          <div className="absolute inset-1.5 rounded-[1.25rem] overflow-hidden border border-white/5">
             {post.videoUrl ? (
               <video 
                 src={post.videoUrl} 
@@ -163,23 +163,23 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
               />
             ) : null}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50" />
             
-            <div className="absolute bottom-4 left-4 right-4 bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-2xl">
+            <div className="absolute bottom-3 left-3 right-3 bg-black/30 backdrop-blur-lg p-3 rounded-xl border border-white/5">
               <div className="text-left">
                 <p className={cn(
-                  "font-medium leading-relaxed text-white/95",
-                  isShortText ? "text-lg holographic-text font-headline italic" : "text-xs"
+                  "font-medium leading-tight text-white/95",
+                  isShortText ? "text-base holographic-text font-headline italic" : "text-[11px]"
                 )}>
                   {displayedContent}
                 </p>
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[10px] font-bold mt-1 uppercase tracking-widest hover:underline"
+                    className="text-[9px] font-bold mt-1 uppercase tracking-widest hover:underline"
                     style={{ color: hueColor }}
                   >
-                    {isExpanded ? 'Show less' : 'Read more'}
+                    {isExpanded ? 'Less' : 'More'}
                   </button>
                 )}
               </div>
@@ -187,21 +187,21 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </div>
         ) : (
           <div className="w-full text-left">
-             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-20 pointer-events-none" />
-             <div className="px-4">
+             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-10 pointer-events-none" />
+             <div className="px-2">
                 <p className={cn(
-                  "font-headline font-medium leading-relaxed italic",
-                  isShortText ? "text-2xl holographic-text" : "text-base text-white/80"
+                  "font-headline font-medium leading-snug italic",
+                  isShortText ? "text-xl holographic-text" : "text-sm text-white/80"
                 )}>
                   "{displayedContent}"
                 </p>
                 {isTooLong && (
                   <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[10px] font-bold mt-2 uppercase tracking-widest hover:underline"
+                    className="text-[9px] font-bold mt-1.5 uppercase tracking-widest hover:underline"
                     style={{ color: hueColor }}
                   >
-                    {isExpanded ? 'Show less' : 'Read more'}
+                    {isExpanded ? 'Less' : 'More'}
                   </button>
                 )}
              </div>
@@ -209,16 +209,16 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         )}
       </div>
 
-      {/* Actions */}
-      <div className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-6">
+      {/* Actions - Slimmer Row */}
+      <div className="px-5 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-5">
           <button 
             onClick={handleLike}
-            className="flex items-center gap-2 group/btn"
+            className="flex items-center gap-1.5 group/btn"
           >
             <Heart 
               className={cn(
-                "w-5 h-5 transition-all duration-300",
+                "w-4 h-4 transition-all duration-300",
                 isLiked 
                   ? "fill-current scale-110" 
                   : "text-white/30 group-hover/btn:scale-110"
@@ -226,7 +226,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               style={{ color: isLiked ? hueColor : undefined }}
             />
             <span className={cn(
-              "text-xs font-bold transition-colors",
+              "text-[10px] font-bold transition-colors",
               isLiked ? "text-white" : "text-white/40"
             )}
             style={{ color: isLiked ? hueColor : undefined }}
@@ -237,11 +237,11 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           
           <button 
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-2 group/btn"
+            className="flex items-center gap-1.5 group/btn"
           >
             <MessageCircle 
               className={cn(
-                "w-5 h-5 transition-all duration-300",
+                "w-4 h-4 transition-all duration-300",
                 showComments 
                   ? "fill-current scale-110" 
                   : "text-white/30 group-hover/btn:scale-110"
@@ -249,7 +249,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               style={{ color: showComments ? hueColor : undefined }}
             />
             <span className={cn(
-              "text-xs font-bold transition-colors",
+              "text-[10px] font-bold transition-colors",
               showComments ? "text-white" : "text-white/40"
             )}
             style={{ color: showComments ? hueColor : undefined }}
@@ -259,59 +259,59 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </button>
         </div>
         
-        <button className="p-2 text-white/30 hover:text-white transition-colors">
-          <Share2 className="w-5 h-5" style={{ color: hueColor }} />
+        <button className="p-1.5 text-white/30 hover:text-white transition-colors">
+          <Share2 className="w-4 h-4" style={{ color: hueColor }} />
         </button>
       </div>
 
-      {/* Comment Section with Individual Auras */}
+      {/* Comment Section - More Compact */}
       {showComments && (
         <div 
-          className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300 border-t"
+          className="px-4 pb-4 pt-1 animate-in slide-in-from-top-1 duration-200 border-t"
           style={{ borderColor: hueColorDeepMuted }}
         >
-          <div className="max-h-64 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left scroll-smooth">
+          <div className="max-h-48 overflow-y-auto space-y-2.5 mb-3 custom-scrollbar text-left scroll-smooth">
             {localComments.map((comment) => {
               const commentHueColor = `hsl(${comment.themeHue}, 100%, 64%)`;
-              const commentHueColorMuted = `hsl(${comment.themeHue}, 100%, 64%, 0.2)`;
+              const commentHueColorMuted = `hsl(${comment.themeHue}, 100%, 64%, 0.15)`;
               
               return (
-                <div key={comment.id} className="flex flex-col gap-1 group/comment rounded-2xl p-1 transition-all">
+                <div key={comment.id} className="flex flex-col gap-0.5 group/comment rounded-xl p-0.5">
                   <div className="flex justify-between items-center px-1">
-                    <Link href={`/profile/${comment.username}`} className="text-[10px] font-bold uppercase tracking-widest hover:underline" style={{ color: commentHueColor }}>
+                    <Link href={`/profile/${comment.username}`} className="text-[9px] font-bold uppercase tracking-wider hover:underline" style={{ color: commentHueColor }}>
                       {comment.username}
                     </Link>
-                    <span className="text-[8px] text-white/20">
+                    <span className="text-[7px] text-white/20">
                       {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   <div 
-                    className="text-xs text-white/70 bg-white/5 p-3 rounded-2xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
+                    className="text-[11px] text-white/75 bg-white/5 p-2 rounded-xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
                     style={{ borderColor: commentHueColorMuted }}
                   >
                     {comment.text}
                     
-                    <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3 mt-2 pt-1.5 border-t border-white/5 opacity-40 group-hover/comment:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleCommentLike(comment.id)}
-                        className="flex items-center gap-1.5 hover:scale-110 transition-transform"
+                        className="flex items-center gap-1 hover:scale-110 transition-transform"
                       >
                         <Heart 
-                          className={cn("w-3 h-3", comment.isLiked && "fill-current")} 
+                          className={cn("w-2.5 h-2.5", comment.isLiked && "fill-current")} 
                           style={{ color: comment.isLiked ? commentHueColor : 'white' }} 
                         />
                         {comment.likes && comment.likes > 0 ? (
-                          <span className="text-[8px] font-bold" style={{ color: comment.isLiked ? commentHueColor : 'white' }}>{comment.likes}</span>
+                          <span className="text-[7px] font-bold" style={{ color: comment.isLiked ? commentHueColor : 'white' }}>{comment.likes}</span>
                         ) : null}
                       </button>
                       
-                      <button className="flex items-center gap-1.5 hover:scale-110 transition-transform">
-                        <Reply className="w-3 h-3 text-white" />
-                        <span className="text-[8px] font-bold text-white uppercase tracking-tighter">Reply</span>
+                      <button className="flex items-center gap-1 hover:scale-110 transition-transform">
+                        <Reply className="w-2.5 h-2.5 text-white" />
+                        <span className="text-[7px] font-bold text-white uppercase tracking-tighter">Reply</span>
                       </button>
                       
-                      <button className="flex items-center gap-1.5 hover:scale-110 transition-transform ml-auto">
-                        <Share2 className="w-3 h-3 text-white opacity-50" />
+                      <button className="flex items-center gap-1 hover:scale-110 transition-transform ml-auto">
+                        <Share2 className="w-2.5 h-2.5 text-white opacity-40" />
                       </button>
                     </div>
                   </div>
@@ -319,40 +319,36 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               );
             })}
             {localComments.length === 0 && (
-              <p className="text-[10px] text-white/20 text-center py-6 italic uppercase tracking-widest">
-                Aura is silent. Sync a thought...
+              <p className="text-[8px] text-white/20 text-center py-4 italic uppercase tracking-widest">
+                Aura is silent...
               </p>
             )}
           </div>
           
-          <form onSubmit={handleAddComment} className="flex gap-2">
+          <form onSubmit={handleAddComment} className="flex gap-1.5">
             <div className="relative flex-1">
               <Input 
-                placeholder="Beam your comment..."
+                placeholder="Beam thoughts..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="h-10 text-xs bg-white/5 border-white/10 rounded-2xl focus:ring-1 focus:ring-offset-0 pr-10"
+                className="h-8 text-[11px] bg-white/5 border-white/10 rounded-xl focus:ring-1 focus:ring-offset-0 pr-8"
                 style={{ 
-                  '--tw-ring-color': `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.2)`,
-                  borderColor: newComment.trim() ? `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.2)` : undefined 
+                  '--tw-ring-color': `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.15)`,
+                  borderColor: newComment.trim() ? `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.15)` : undefined 
                 } as React.CSSProperties}
-              />
-              <div 
-                className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 opacity-20"
-                style={{ boxShadow: newComment.trim() ? `inset 0 0 10px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)` : 'none' }}
               />
             </div>
             <Button 
               type="submit" 
               size="icon" 
-              className="h-10 w-10 rounded-2xl shadow-lg transition-all active:scale-90 disabled:opacity-30"
+              className="h-8 w-8 rounded-xl shadow-md transition-all active:scale-90 disabled:opacity-20"
               style={{ 
                 backgroundColor: `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)`,
-                boxShadow: newComment.trim() ? `0 4px 12px -2px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.4)` : 'none'
+                boxShadow: newComment.trim() ? `0 2px 8px -1px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.3)` : 'none'
               }}
               disabled={!newComment.trim()}
             >
-              <Send className="w-4 h-4 text-white" />
+              <Send className="w-3.5 h-3.5 text-white" />
             </Button>
           </form>
         </div>
