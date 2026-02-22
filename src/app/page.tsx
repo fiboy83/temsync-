@@ -106,7 +106,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen pt-24 pb-14 transition-colors duration-700 bg-background">
+    <main className="min-h-screen pt-28 pb-14 transition-colors duration-700 bg-background">
       <TopNav 
         visible={navVisible} 
         userProfile={userProfile} 
