@@ -37,7 +37,7 @@ export default function Home() {
     const root = document.documentElement;
     root.style.setProperty('--primary', `${hue} 100% 64%`);
     root.style.setProperty('--secondary', `${(hue + 180) % 360} 100% 50%`);
-    root.style.setProperty('--accent', `${(hue + 180) % 360} 100% 50%`);
+    root.style.setProperty('--accent', `${hue} 100% 64%`);
     root.style.setProperty('--ring', `${hue} 100% 64%`);
   };
 
@@ -106,7 +106,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen pt-20 pb-14 transition-colors duration-700 bg-background">
+    <main className="min-h-screen pt-24 pb-14 transition-colors duration-700 bg-background">
       <TopNav 
         visible={navVisible} 
         userProfile={userProfile} 
@@ -122,7 +122,7 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 

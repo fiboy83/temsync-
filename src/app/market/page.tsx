@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, Globe, TrendingUp, ShieldCheck, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/app/page';
 
 interface DexToken {
@@ -17,6 +17,7 @@ interface DexToken {
 }
 
 export default function MarketPage() {
+  const router = useRouter();
   const [tokens, setTokens] = useState<DexToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -25,10 +26,19 @@ export default function MarketPage() {
     themeHue: 266,
   });
 
+  const updateGlobalTheme = (hue: number) => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary', `${hue} 100% 64%`);
+    root.style.setProperty('--accent', `${hue} 100% 64%`);
+    root.style.setProperty('--ring', `${hue} 100% 64%`);
+  };
+
   useEffect(() => {
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
+      const parsed = JSON.parse(savedProfile);
+      setUserProfile(parsed);
+      updateGlobalTheme(parsed.themeHue);
     }
 
     async function fetchMarketData() {
@@ -63,12 +73,12 @@ export default function MarketPage() {
   return (
     <main className="min-h-screen pt-8 pb-10 bg-background">
       <div className="max-w-lg mx-auto px-4 w-full relative">
-        <Link 
-          href="/" 
+        <button 
+          onClick={() => router.push('/')}
           className="absolute top-2 left-4 p-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/60 hover:text-white transition-colors z-10"
         >
           <ArrowLeft className="w-5 h-5" />
-        </Link>
+        </button>
 
         <div className="mb-12 mt-12 text-center">
           <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
@@ -81,13 +91,13 @@ export default function MarketPage() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="w-10 h-10 animate-spin" style={{ color: hueColor }} />
-            <p className="font-headline font-medium tracking-widest uppercase text-[12px]" style={{ color: hueColor }}>
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="font-headline font-medium tracking-widest uppercase text-[12px] text-primary">
               decoding signals...
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {tokens.map((token, idx) => (
               <div 
                 key={`${token.tokenAddress}-${idx}`}
@@ -113,15 +123,15 @@ export default function MarketPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1.5">
-                      <h3 className="text-[13px] font-bold text-white lowercase truncate group-hover:text-primary transition-colors" style={{ color: hueColor }}>
+                      <h3 className="text-[13px] font-bold lowercase truncate transition-colors text-primary">
                         {token.chainId} signal
                       </h3>
                       <div 
                         className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border"
                         style={{ borderColor: hueColorDeepMuted }}
                       >
-                        <ShieldCheck className="w-3.5 h-3.5" style={{ color: hueColor }} />
-                        <span className="text-[10px] font-bold lowercase tracking-tighter" style={{ color: hueColor }}>verified</span>
+                        <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] font-bold lowercase tracking-tighter text-primary">verified</span>
                       </div>
                     </div>
                     
@@ -140,14 +150,13 @@ export default function MarketPage() {
                         href={token.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all border hover:scale-105 active:scale-95"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all border hover:scale-105 active:scale-95 bg-primary/10"
                         style={{ 
-                          backgroundColor: `${hueColor}15`,
                           borderColor: hueColorMuted
                         }}
                       >
-                        <Globe className="w-4 h-4" style={{ color: hueColor }} />
-                        <span className="text-[11px] font-bold lowercase tracking-wider" style={{ color: hueColor }}>dexscreener</span>
+                        <Globe className="w-4 h-4 text-primary" />
+                        <span className="text-[11px] font-bold lowercase tracking-wider text-primary">dexscreener</span>
                       </a>
                     </div>
                   </div>

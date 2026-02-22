@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Sparkles, Clock, ShieldCheck, Send, MoreVertical } from 'lucide-react';
-import Link from 'next/link';
+import Link from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/app/page';
+import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -65,6 +66,7 @@ const DUMMY_MESSAGES: Message[] = [
 ];
 
 export default function InboxPage() {
+  const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
@@ -76,10 +78,19 @@ export default function InboxPage() {
   const [replyText, setReplyText] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const updateGlobalTheme = (hue: number) => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary', `${hue} 100% 64%`);
+    root.style.setProperty('--accent', `${hue} 100% 64%`);
+    root.style.setProperty('--ring', `${hue} 100% 64%`);
+  };
+
   useEffect(() => {
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
+      const parsed = JSON.parse(savedProfile);
+      setUserProfile(parsed);
+      updateGlobalTheme(parsed.themeHue);
     }
 
     const initialHistories: { [key: string]: ChatMessage[] } = {};
@@ -140,19 +151,17 @@ export default function InboxPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-3">
-              <Link 
-                href={`/profile/${selectedMessage.sender.toLowerCase()}`}
+              <button 
+                onClick={() => router.push(`/profile/${selectedMessage.sender.toLowerCase()}`)}
                 className="relative w-10 h-10 rounded-full overflow-hidden border-2 transition-transform active:scale-95" 
                 style={{ borderColor: senderHueColor }}
               >
                 <Image src={selectedMessage.avatar} alt={selectedMessage.sender} fill className="object-cover" />
-              </Link>
-              <div>
-                <Link href={`/profile/${selectedMessage.sender.toLowerCase()}`}>
-                  <h2 className="text-[14px] font-bold lowercase tracking-tight hover:underline transition-all" style={{ color: senderHueColor }}>
-                    {selectedMessage.sender}
-                  </h2>
-                </Link>
+              </button>
+              <div className="cursor-pointer" onClick={() => router.push(`/profile/${selectedMessage.sender.toLowerCase()}`)}>
+                <h2 className="text-[14px] font-bold lowercase tracking-tight hover:underline transition-all" style={{ color: senderHueColor }}>
+                  {selectedMessage.sender}
+                </h2>
                 <div className="flex items-center gap-1 opacity-40">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span className="text-[9px] font-bold lowercase tracking-widest">online</span>
@@ -201,13 +210,13 @@ export default function InboxPage() {
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="beam a response..."
-              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20"
+              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-primary/30"
             />
             <button 
               type="submit"
               disabled={!replyText.trim()}
-              className="h-12 w-12 flex items-center justify-center rounded-xl transition-all active:scale-90 disabled:opacity-20 shadow-lg"
-              style={{ backgroundColor: senderHueColor }}
+              className="h-12 w-12 flex items-center justify-center rounded-xl transition-all active:scale-90 disabled:opacity-20 shadow-lg bg-primary"
+              style={{ boxShadow: `0 8px 20px -6px ${userHueColor}66` }}
             >
               <Send className="w-5 h-5 text-black" />
             </button>
@@ -220,12 +229,12 @@ export default function InboxPage() {
   return (
     <main className="min-h-screen pt-8 pb-10 bg-background">
       <div className="max-w-lg mx-auto px-4 w-full relative">
-        <Link 
-          href="/" 
+        <button 
+          onClick={() => router.push('/')}
           className="absolute top-2 left-4 p-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/60 hover:text-white transition-colors z-10"
         >
           <ArrowLeft className="w-5 h-5" />
-        </Link>
+        </button>
 
         <div className="mb-12 mt-12 text-center">
           <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase tracking-tight">
@@ -255,8 +264,8 @@ export default function InboxPage() {
               )}
 
               <div className="flex gap-4 items-center">
-                <Link 
-                  href={`/profile/${msg.sender.toLowerCase()}`}
+                <button 
+                  onClick={() => router.push(`/profile/${msg.sender.toLowerCase()}`)}
                   className="relative w-14 h-14 rounded-full overflow-hidden border-2 flex-shrink-0 transition-transform hover:scale-105 z-10" 
                   style={{ borderColor: `hsl(${msg.hue}, 100%, 64%)` }}
                 >
@@ -267,7 +276,7 @@ export default function InboxPage() {
                       style={{ backgroundColor: `hsl(${msg.hue}, 100%, 64%)` }}
                     />
                   )}
-                </Link>
+                </button>
 
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedMessageId(msg.id)}>
                   <div className="flex justify-between items-center mb-1">

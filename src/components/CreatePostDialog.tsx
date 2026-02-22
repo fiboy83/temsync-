@@ -22,6 +22,8 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const hueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -72,7 +74,7 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
 
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border" style={{ borderColor: `hsl(${userProfile.themeHue}, 100%, 64%)` }}>
+            <div className="relative w-8 h-8 rounded-full overflow-hidden border" style={{ borderColor: hueColor }}>
               <Image src={userProfile.avatar} alt="Me" fill className="object-cover" />
             </div>
             <span className="text-xs font-bold text-white/90 lowercase">{userProfile.username.toLowerCase()}</span>
@@ -82,7 +84,7 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
             placeholder="what's happening in your timeline?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="bg-white/5 border-white/5 rounded-2xl min-h-[100px] text-sm focus:ring-primary/30 resize-none lowercase placeholder:lowercase"
+            className="bg-white/5 border-white/5 rounded-2xl min-h-[100px] text-[14px] focus:ring-primary/30 resize-none lowercase placeholder:lowercase"
           />
 
           {mediaUrl ? (
@@ -141,7 +143,8 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
           <Button 
             onClick={handlePost}
             disabled={!content && !mediaUrl}
-            className="w-full h-12 rounded-xl bg-primary hover:bg-primary/80 text-white font-headline font-bold shadow-lg shadow-primary/20 lowercase"
+            className="w-full h-12 rounded-xl bg-primary hover:bg-primary/80 text-black font-headline font-bold shadow-lg lowercase transition-all active:scale-95"
+            style={{ boxShadow: `0 8px 25px -10px ${hueColor}88` }}
           >
             <Send className="w-4 h-4 mr-2" />
             sync to feed
