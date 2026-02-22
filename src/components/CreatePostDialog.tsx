@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ImagePlus, X, Send } from 'lucide-react';
+import { ImagePlus, Video, X, Send } from 'lucide-react';
 import Image from 'next/image';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import type { UserProfile } from '@/app/page';
@@ -18,29 +18,33 @@ interface CreatePostDialogProps {
 
 export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCreated }: CreatePostDialogProps) {
   const [content, setContent] = useState('');
-  const [image, setImage] = useState<string | null>(null);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const type = file.type.startsWith('video/') ? 'video' : 'image';
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result as string);
+        setMediaUrl(reader.result as string);
+        setMediaType(type);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handlePost = () => {
-    if (!content && !image) return;
+    if (!content && !mediaUrl) return;
 
     const newPost: Post = {
       id: `post-${Date.now()}`,
       username: userProfile.username,
       profilePicture: userProfile.avatar,
       content: content,
-      imageUrl: image || `https://picsum.photos/seed/${Date.now()}/600/800`,
+      imageUrl: mediaType === 'image' ? (mediaUrl || undefined) : undefined,
+      videoUrl: mediaType === 'video' ? (mediaUrl || undefined) : undefined,
       likes: 0,
       comments: 0,
       timestamp: new Date().toISOString(),
@@ -49,7 +53,8 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
 
     onPostCreated(newPost);
     setContent('');
-    setImage(null);
+    setMediaUrl(null);
+    setMediaType(null);
     onOpenChange(false);
   };
 
@@ -80,39 +85,62 @@ export function CreatePostDialog({ isOpen, onOpenChange, userProfile, onPostCrea
             className="bg-white/5 border-white/5 rounded-2xl min-h-[100px] text-sm focus:ring-primary/30 resize-none"
           />
 
-          {image ? (
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10">
-              <Image src={image} alt="Upload preview" fill className="object-cover" />
+          {mediaUrl ? (
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10">
+              {mediaType === 'image' ? (
+                <Image src={mediaUrl} alt="Upload preview" fill className="object-cover" />
+              ) : (
+                <video src={mediaUrl} className="w-full h-full object-cover" controls muted />
+              )}
               <button 
-                onClick={() => setImage(null)}
-                className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white/70 hover:text-white"
+                onClick={() => { setMediaUrl(null); setMediaType(null); }}
+                className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white/70 hover:text-white z-10"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full aspect-video rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-colors group"
-            >
-              <ImagePlus className="w-8 h-8 text-white/20 group-hover:text-primary transition-colors" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Attach Visual Aura</span>
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.accept = "image/*";
+                    fileInputRef.current.click();
+                  }
+                }}
+                className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-colors group"
+              >
+                <ImagePlus className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
+                <span className="text-[8px] font-bold uppercase tracking-widest text-white/30">Image</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.accept = "video/*";
+                    fileInputRef.current.click();
+                  }
+                }}
+                className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-colors group"
+              >
+                <Video className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
+                <span className="text-[8px] font-bold uppercase tracking-widest text-white/30">Video</span>
+              </button>
+            </div>
           )}
 
           <input 
             type="file" 
             ref={fileInputRef} 
             className="hidden" 
-            accept="image/*" 
-            onChange={handleImageChange}
+            onChange={handleFileChange}
           />
         </div>
 
         <DialogFooter>
           <Button 
             onClick={handlePost}
-            disabled={!content && !image}
+            disabled={!content && !mediaUrl}
             className="w-full h-12 rounded-xl bg-primary hover:bg-primary/80 text-white font-headline font-bold shadow-lg shadow-primary/20"
           >
             <Send className="w-4 h-4 mr-2" />

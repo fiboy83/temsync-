@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Send, Play } from 'lucide-react';
 import type { Post } from '@/ai/flows/generate-initial-dummy-posts';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -78,6 +78,8 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     saveToLocal(isLiked, updatedComments);
   };
 
+  const hasMedia = !!post.imageUrl || !!post.videoUrl;
+
   return (
     <div 
       className="bg-card/30 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden mb-8 animate-fade-in border transition-all duration-500 group"
@@ -106,23 +108,43 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         </button>
       </div>
 
-      {/* Main Content Image */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden mx-auto">
-        <div className="absolute inset-4 rounded-[2rem] overflow-hidden shadow-inner">
-          <Image 
-            src={post.imageUrl} 
-            alt="Holographic Post" 
-            fill 
-            className="object-cover transition-transform duration-1000 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
-          
-          <div className="absolute bottom-4 left-4 right-4 bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-2xl">
-            <p className="text-xs font-medium leading-relaxed text-white/95">
-              {post.content}
+      {/* Main Content */}
+      <div className={cn("relative w-full overflow-hidden", hasMedia ? "aspect-[4/5]" : "min-h-[150px] flex items-center justify-center p-8")}>
+        {hasMedia ? (
+          <div className="absolute inset-4 rounded-[2rem] overflow-hidden shadow-inner border border-white/5">
+            {post.videoUrl ? (
+              <video 
+                src={post.videoUrl} 
+                className="w-full h-full object-cover" 
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+              />
+            ) : post.imageUrl ? (
+              <Image 
+                src={post.imageUrl} 
+                alt="Holographic Post" 
+                fill 
+                className="object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+            
+            <div className="absolute bottom-4 left-4 right-4 bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-2xl">
+              <p className="text-xs font-medium leading-relaxed text-white/95">
+                {post.content}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full text-center">
+             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-20 pointer-events-none" />
+             <p className="text-lg font-headline font-medium leading-relaxed italic holographic-text px-4">
+              "{post.content}"
             </p>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Actions */}
@@ -175,7 +197,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </button>
         </div>
         
-        <button className="p-2 text-white/30 hover:text-white transition-colors" style={{ color: hueColorMuted }}>
+        <button className="p-2 text-white/30 hover:text-white transition-colors">
           <Share2 className="w-5 h-5" style={{ color: hueColor }} />
         </button>
       </div>
