@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, User } from 'lucide-react';
+import { Search, Wallet } from 'lucide-react';
 
 export function TopNav() {
   return (
@@ -13,8 +13,8 @@ export function TopNav() {
           temsync
         </h1>
 
-        <button className="p-1 hover:bg-white/20 rounded-full transition-colors border-2 border-primary/20">
-          <User className="w-6 h-6 text-primary" />
+        <button className="p-2 hover:bg-white/20 rounded-full transition-colors border-2 border-primary/20 flex items-center justify-center">
+          <Wallet className="w-5 h-5 text-primary" />
         </button>
       </div>
     </nav>
