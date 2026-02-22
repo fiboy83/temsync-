@@ -1,10 +1,10 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for generating unique, blurred holographic backdrops for social media posts.
+ * @fileOverview A Genkit flow for providing holographic backdrops for social media posts.
  *
- * - generatePostHolographicBackdrop - A function that handles the holographic backdrop generation process.
- * - GeneratePostHolographicBackdropInput - The input type for the generatePostHolographicBackdrop function.
- * - GeneratePostHolographicBackdropOutput - The return type for the generatePostHolographicBackdrop function.
+ * - generatePostHolographicBackdrop - A function that returns a holographic backdrop URL.
+ * - GeneratePostHolographicBackdropInput - The input type.
+ * - GeneratePostHolographicBackdropOutput - The return type.
  */
 
 import { ai } from '@/ai/genkit';
@@ -15,7 +15,7 @@ const GeneratePostHolographicBackdropInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'An optional textual description to guide the holographic backdrop generation.'
+      'An optional textual description to guide the backdrop selection.'
     ),
 });
 export type GeneratePostHolographicBackdropInput = z.infer<
@@ -25,7 +25,7 @@ export type GeneratePostHolographicBackdropInput = z.infer<
 const GeneratePostHolographicBackdropOutputSchema = z.object({
   imageDataUri: z
     .string()
-    .describe('The generated holographic backdrop image as a data URI.'),
+    .describe('The holographic backdrop image URL.'),
 });
 export type GeneratePostHolographicBackdropOutput = z.infer<
   typeof GeneratePostHolographicBackdropOutputSchema
@@ -44,20 +44,10 @@ const generatePostHolographicBackdropFlow = ai.defineFlow(
     outputSchema: GeneratePostHolographicBackdropOutputSchema,
   },
   async (input) => {
-    const basePrompt = `A blurred, soft, ethereal holographic gradient with dynamic, shifting colors, minimal, modern, abstract. Focus on soft light and subtle transitions, vibrant yet subtle color shifts.`;
-    const fullPrompt = input.description
-      ? `${basePrompt} ${input.description}`
-      : basePrompt;
+    // Using a seeded placeholder to avoid Imagen API billing restrictions
+    const seed = input.description ? encodeURIComponent(input.description) : 'default-holographic';
+    const placeholderUrl = `https://picsum.photos/seed/${seed}/600/800`;
 
-    const { media } = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
-      prompt: fullPrompt,
-    });
-
-    if (!media) {
-      throw new Error('Failed to generate holographic backdrop image.');
-    }
-
-    return { imageDataUri: media.url };
+    return { imageDataUri: placeholderUrl };
   }
 );
