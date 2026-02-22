@@ -36,7 +36,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
   const [newComment, setNewComment] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Load interactions and bookmarks from localStorage
   useEffect(() => {
     const savedData = localStorage.getItem(`temsync_post_interaction_${post.id}`);
     if (savedData) {
@@ -72,7 +71,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
     setIsBookmarked(!isBookmarked);
     
-    // Trigger global event for components to re-sync bookmarks if needed
     window.dispatchEvent(new Event('bookmarksUpdated'));
   };
 
@@ -370,10 +368,9 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                 } as React.CSSProperties}
               />
             </div>
-            <Button 
+            <button 
               type="submit" 
-              size="icon" 
-              className="h-7 w-7 rounded-lg shadow-md transition-all active:scale-90 disabled:opacity-20"
+              className="h-7 w-7 rounded-lg shadow-md transition-all active:scale-90 disabled:opacity-20 flex items-center justify-center"
               style={{ 
                 backgroundColor: `hsl(${currentUser?.themeHue ?? 266}, 100%, 64%)`,
                 boxShadow: newComment.trim() ? `0 2px 8px -1px hsl(${currentUser?.themeHue ?? 266}, 100%, 64%, 0.3)` : 'none'
@@ -381,7 +378,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               disabled={!newComment.trim()}
             >
               <Send className="w-3 h-3 text-white" />
-            </Button>
+            </button>
           </form>
         </div>
       )}

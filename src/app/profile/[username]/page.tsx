@@ -66,7 +66,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           }
         }
       } catch (error) {
-        console.error("Failed to load profile content:", error);
+        // failed to load content
       } finally {
         setLoading(false);
       }
@@ -74,7 +74,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
     loadUserContent();
 
-    // Listen for bookmark updates from PostCard
     window.addEventListener('bookmarksUpdated', loadUserContent);
     return () => window.removeEventListener('bookmarksUpdated', loadUserContent);
   }, [username, currentUserProfile.username]);
@@ -155,11 +154,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div className="flex gap-10 py-4 border-y border-white/10 mt-2">
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[9px] text-white/80 lowercase tracking-widest font-bold">syncs</span>
+              <span className="text-[9px] lowercase tracking-widest font-bold" style={{ color: hueColor }}>syncs</span>
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[9px] text-white/80 lowercase tracking-widest font-bold">resonance</span>
+              <span className="text-[9px] lowercase tracking-widest font-bold" style={{ color: hueColor }}>resonance</span>
             </div>
           </div>
         </div>
@@ -169,17 +168,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             <TabsList className="w-full bg-white/5 border border-white/10 h-10 p-1 rounded-xl mb-6">
               <TabsTrigger 
                 value="syncs" 
-                className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10"
+                className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all"
+                style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
               >
-                <Sparkles className="w-3 h-3 mr-2" />
+                <Sparkles className="w-3 h-3 mr-2" style={{ color: hueColor }} />
                 syncs
               </TabsTrigger>
               {isSelf && (
                 <TabsTrigger 
                   value="bookmarks" 
-                  className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10"
+                  className="flex-1 rounded-lg text-[9px] font-bold lowercase tracking-widest data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all"
+                  style={{ color: viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 80%)` : undefined }}
                 >
-                  <Bookmark className="w-3 h-3 mr-2" />
+                  <Bookmark className="w-3 h-3 mr-2" style={{ color: hueColor }} />
                   bookmarks
                 </TabsTrigger>
               )}
