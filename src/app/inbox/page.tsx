@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Sparkles, MessageSquare, Clock, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ArrowLeft, Sparkles, Clock, ShieldCheck, Send, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/app/page';
 
-interface DummyMessage {
+interface Message {
   id: string;
   sender: string;
   avatar: string;
@@ -16,7 +18,14 @@ interface DummyMessage {
   hue: number;
 }
 
-const DUMMY_MESSAGES: DummyMessage[] = [
+interface ChatMessage {
+  id: string;
+  text: string;
+  isMe: boolean;
+  timestamp: string;
+}
+
+const DUMMY_MESSAGES: Message[] = [
   {
     id: 'msg-1',
     sender: 'cyber_wanderer',
@@ -24,7 +33,7 @@ const DUMMY_MESSAGES: DummyMessage[] = [
     preview: 'did you catch the latest resonance shift in sector 4? the signals are peaking.',
     time: '2m ago',
     unread: true,
-    hue: 180, // Cyan/Aqua
+    hue: 180,
   },
   {
     id: 'msg-2',
@@ -33,7 +42,7 @@ const DUMMY_MESSAGES: DummyMessage[] = [
     preview: 'the holographic backdrop you synced is incredible. how did you stabilize the frequency?',
     time: '14m ago',
     unread: true,
-    hue: 300, // Pink/Magenta
+    hue: 300,
   },
   {
     id: 'msg-3',
@@ -42,7 +51,7 @@ const DUMMY_MESSAGES: DummyMessage[] = [
     preview: 'incoming signal from the lower timeline. we might need to recalibrate the neural link.',
     time: '1h ago',
     unread: false,
-    hue: 45, // Amber/Gold
+    hue: 45,
   },
   {
     id: 'msg-4',
@@ -51,7 +60,7 @@ const DUMMY_MESSAGES: DummyMessage[] = [
     preview: 'requesting permission to sync with your current trajectory. the void is calm today.',
     time: '3h ago',
     unread: false,
-    hue: 220, // Deep Blue
+    hue: 220,
   }
 ];
 
@@ -62,14 +71,149 @@ export default function InboxPage() {
     themeHue: 266,
   });
 
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [chatHistory, setChatHistory] = useState<{ [key: string]: ChatMessage[] }>({});
+  const [replyText, setReplyText] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
       setUserProfile(JSON.parse(savedProfile));
     }
+
+    // Initialize dummy chat histories
+    const initialHistories: { [key: string]: ChatMessage[] } = {};
+    DUMMY_MESSAGES.forEach(msg => {
+      initialHistories[msg.id] = [
+        {
+          id: `initial-${msg.id}`,
+          text: msg.preview,
+          isMe: false,
+          timestamp: msg.time
+        }
+      ];
+    });
+    setChatHistory(initialHistories);
   }, []);
 
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedMessageId, chatHistory]);
+
+  const selectedMessage = DUMMY_MESSAGES.find(m => m.id === selectedMessageId);
+  const currentChat = selectedMessageId ? chatHistory[selectedMessageId] || [] : [];
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim() || !selectedMessageId) return;
+
+    const newMsg: ChatMessage = {
+      id: `chat-${Date.now()}`,
+      text: replyText,
+      isMe: true,
+      timestamp: 'just now'
+    };
+
+    setChatHistory(prev => ({
+      ...prev,
+      [selectedMessageId]: [...(prev[selectedMessageId] || []), newMsg]
+    }));
+    setReplyText('');
+  };
+
   const userHueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
+
+  if (selectedMessageId && selectedMessage) {
+    const senderHueColor = `hsl(${selectedMessage.hue}, 100%, 64%)`;
+    
+    return (
+      <main className="min-h-screen bg-background flex flex-col">
+        {/* Chat Header */}
+        <div className="sticky top-0 z-20 glass border-b border-white/5 px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSelectedMessageId(null)}
+              className="p-2 bg-white/5 rounded-full text-white/60 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div 
+                className="relative w-10 h-10 rounded-full overflow-hidden border-2" 
+                style={{ borderColor: senderHueColor }}
+              >
+                <Image src={selectedMessage.avatar} alt={selectedMessage.sender} fill className="object-cover" />
+              </div>
+              <div>
+                <h2 className="text-[14px] font-bold lowercase tracking-tight" style={{ color: senderHueColor }}>
+                  {selectedMessage.sender}
+                </h2>
+                <div className="flex items-center gap-1 opacity-40">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-[9px] font-bold lowercase tracking-widest">online</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button className="p-2 text-white/30 hover:text-white">
+            <MoreVertical className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Message Content */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
+          {currentChat.map((msg) => (
+            <div 
+              key={msg.id} 
+              className={cn(
+                "flex flex-col max-w-[85%] animate-fade-in",
+                msg.isMe ? "ml-auto items-end" : "mr-auto items-start"
+              )}
+            >
+              <div 
+                className={cn(
+                  "p-3.5 rounded-2xl text-[14px] lowercase leading-relaxed border backdrop-blur-xl shadow-lg",
+                  msg.isMe 
+                    ? "bg-white/5 border-white/10 text-white rounded-tr-none" 
+                    : "bg-card/40 border-white/5 text-white/90 rounded-tl-none"
+                )}
+                style={msg.isMe ? { borderRight: `2px solid ${userHueColor}` } : { borderLeft: `2px solid ${senderHueColor}` }}
+              >
+                {msg.text}
+              </div>
+              <span className="mt-1.5 text-[9px] font-bold text-white/20 lowercase tracking-widest px-1">
+                {msg.timestamp}
+              </span>
+            </div>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
+
+        {/* Reply Bar */}
+        <div className="sticky bottom-0 bg-background/80 backdrop-blur-2xl border-t border-white/5 p-4 pb-8">
+          <form onSubmit={handleSendMessage} className="flex gap-2 max-w-lg mx-auto w-full">
+            <Input 
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="beam a response..."
+              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20"
+            />
+            <button 
+              type="submit"
+              disabled={!replyText.trim()}
+              className="h-12 w-12 flex items-center justify-center rounded-xl transition-all active:scale-90 disabled:opacity-20 shadow-lg"
+              style={{ backgroundColor: senderHueColor }}
+            >
+              <Send className="w-5 h-5 text-black" />
+            </button>
+          </form>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen pt-8 pb-10 bg-background">
@@ -97,7 +241,8 @@ export default function InboxPage() {
           {DUMMY_MESSAGES.map((msg, idx) => (
             <div 
               key={msg.id}
-              className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/5 cursor-pointer relative overflow-hidden"
+              onClick={() => setSelectedMessageId(msg.id)}
+              className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/5 cursor-pointer relative overflow-hidden active:scale-[0.98]"
               style={{ 
                 animationDelay: `${idx * 100}ms`,
                 borderColor: `hsl(${msg.hue}, 100%, 64%, 0.2)`,
