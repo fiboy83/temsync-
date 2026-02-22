@@ -16,17 +16,17 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick }: Botto
     )}>
       <div className="glass rounded-2xl px-1 py-1 flex items-center justify-around holographic-glow border-white/5">
         <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-primary/10 transition-colors">
-            <ShoppingBag className="w-3.5 h-3.5 text-foreground/70 group-hover:text-primary" />
+          <div className="p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+            <ShoppingBag className="w-3.5 h-3.5 text-primary" />
           </div>
-          <span className="text-[6px] font-medium uppercase tracking-widest text-foreground/40">Market</span>
+          <span className="text-[6px] font-bold uppercase tracking-widest text-primary/60 group-hover:text-primary">Market</span>
         </button>
 
         <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-primary/10 transition-colors">
-            <Repeat className="w-3.5 h-3.5 text-foreground/70 group-hover:text-primary" />
+          <div className="p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+            <Repeat className="w-3.5 h-3.5 text-primary" />
           </div>
-          <span className="text-[6px] font-medium uppercase tracking-widest text-foreground/40">Swap</span>
+          <span className="text-[6px] font-bold uppercase tracking-widest text-primary/60 group-hover:text-primary">Swap</span>
         </button>
 
         <button 
@@ -37,20 +37,20 @@ export function BottomNav({ visible = true, onProfileClick, onPostClick }: Botto
         </button>
 
         <button className="flex flex-col items-center group py-1 px-2">
-          <div className="p-1 rounded-lg group-hover:bg-primary/10 transition-colors">
-            <Mail className="w-3.5 h-3.5 text-foreground/70 group-hover:text-primary" />
+          <div className="p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+            <Mail className="w-3.5 h-3.5 text-primary" />
           </div>
-          <span className="text-[6px] font-medium uppercase tracking-widest text-foreground/40">Inbox</span>
+          <span className="text-[6px] font-bold uppercase tracking-widest text-primary/60 group-hover:text-primary">Inbox</span>
         </button>
 
         <button 
           onClick={onProfileClick}
           className="flex flex-col items-center group py-1 px-2"
         >
-          <div className="p-1 rounded-lg group-hover:bg-primary/10 transition-colors">
-            <UserIcon className="w-3.5 h-3.5 text-foreground/70 group-hover:text-primary" />
+          <div className="p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+            <UserIcon className="w-3.5 h-3.5 text-primary" />
           </div>
-          <span className="text-[6px] font-medium uppercase tracking-widest text-foreground/40">Profile</span>
+          <span className="text-[6px] font-bold uppercase tracking-widest text-primary/60 group-hover:text-primary">Profile</span>
         </button>
       </div>
     </nav>
