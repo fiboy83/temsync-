@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { PostCard } from '@/components/PostCard';
-import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send } from 'lucide-react';
+import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -114,21 +114,21 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
               {username}
             </h1>
-            <p className="text-[10px] text-white/70 lowercase tracking-[0.3em] font-bold">
+            <p className="text-[10px] text-white/80 lowercase tracking-[0.3em] font-bold">
               synchronized entity
             </p>
           </div>
 
-          <p className="text-sm text-white/80 leading-relaxed lowercase">
+          <p className="text-sm text-white/90 leading-relaxed lowercase">
             exploring the holographic horizons of the multiverse. just another digital traveler in the sync stream. ✨
           </p>
 
           <div className="flex flex-wrap gap-5 pt-3">
-            <div className="flex items-center gap-2 text-[10px] text-white/80 font-bold lowercase tracking-widest">
+            <div className="flex items-center gap-2 text-[10px] text-white/90 font-bold lowercase tracking-widest">
               <MapPin className="w-3.5 h-3.5" style={{ color: hueColor }} />
               neo tokyo sector 7
             </div>
-            <div className="flex items-center gap-2 text-[10px] text-white/80 font-bold lowercase tracking-widest">
+            <div className="flex items-center gap-2 text-[10px] text-white/90 font-bold lowercase tracking-widest">
               <LinkIcon className="w-3.5 h-3.5" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
@@ -137,19 +137,22 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div className="flex gap-10 py-4 border-y border-white/10 mt-2">
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[9px] text-white/70 lowercase tracking-widest font-bold">syncs</span>
+              <span className="text-[9px] text-white/80 lowercase tracking-widest font-bold">syncs</span>
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[9px] text-white/70 lowercase tracking-widest font-bold">resonance</span>
+              <span className="text-[9px] text-white/80 lowercase tracking-widest font-bold">resonance</span>
             </div>
           </div>
         </div>
 
         <div className="mt-10 space-y-4">
-          <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/50 mb-6">
-            recent stream
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/60">
+              recent stream
+            </h2>
+            <Sparkles className="w-3.5 h-3.5 text-white/20" />
+          </div>
           
           {posts.map((post, index) => (
             <PostCard 
