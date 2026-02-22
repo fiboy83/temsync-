@@ -26,26 +26,26 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen pt-28 pb-32">
+    <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-28">
       <TopNav />
       
-      <div className="max-w-lg mx-auto px-4">
+      <div className="max-w-lg mx-auto px-4 w-full">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-            <p className="font-headline text-primary font-medium tracking-widest uppercase text-xs">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <p className="font-headline text-primary font-medium tracking-widest uppercase text-[10px]">
               Initializing Holographic Feed...
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {posts.map((post, index) => (
               <PostCard key={post.id} post={post} index={index} />
             ))}
             
             {posts.length === 0 && !loading && (
               <div className="text-center py-20">
-                <p className="text-foreground/50">No posts found in this reality.</p>
+                <p className="text-foreground/50 text-sm">No posts found in this reality.</p>
               </div>
             )}
           </div>
