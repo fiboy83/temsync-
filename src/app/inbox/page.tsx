@@ -139,7 +139,11 @@ export default function InboxPage() {
     const senderHueColor = `hsl(${selectedMessage.hue}, 100%, 64%)`;
     
     return (
-      <main className="min-h-screen bg-background flex flex-col">
+      <main className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+        {/* Background Auras for better blur visualization */}
+        <div className="absolute top-1/4 -left-20 w-64 h-64 rounded-full opacity-20 blur-[100px] pointer-events-none" style={{ backgroundColor: senderHueColor }} />
+        <div className="absolute bottom-1/4 -right-20 w-64 h-64 rounded-full opacity-10 blur-[100px] pointer-events-none" style={{ backgroundColor: userHueColor }} />
+
         {/* Chat Header */}
         <div className="sticky top-0 z-20 glass border-b border-white/5 px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -174,7 +178,7 @@ export default function InboxPage() {
         </div>
 
         {/* Message Content */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar relative z-10">
           {currentChat.map((msg) => (
             <div 
               key={msg.id} 
@@ -185,12 +189,15 @@ export default function InboxPage() {
             >
               <div 
                 className={cn(
-                  "p-3.5 rounded-2xl text-[14px] lowercase leading-relaxed border backdrop-blur-2xl shadow-lg transition-all",
+                  "p-3.5 rounded-2xl text-[14px] lowercase leading-relaxed border backdrop-blur-3xl shadow-2xl transition-all",
                   msg.isMe 
                     ? "bg-white/10 border-white/10 text-white rounded-tr-none" 
                     : "bg-white/5 border-white/5 text-white/90 rounded-tl-none"
                 )}
-                style={msg.isMe ? { borderRight: `2px solid ${userHueColor}` } : { borderLeft: `2px solid ${senderHueColor}` }}
+                style={msg.isMe 
+                  ? { borderRight: `3px solid ${userHueColor}`, boxShadow: `0 10px 40px -15px ${userHueColor}33` } 
+                  : { borderLeft: `3px solid ${senderHueColor}`, boxShadow: `0 10px 40px -15px ${senderHueColor}33` }
+                }
               >
                 {msg.text}
               </div>
@@ -203,13 +210,13 @@ export default function InboxPage() {
         </div>
 
         {/* Reply Bar */}
-        <div className="sticky bottom-0 bg-background/80 backdrop-blur-2xl border-t border-white/5 p-4 pb-8">
+        <div className="sticky bottom-0 bg-background/40 backdrop-blur-3xl border-t border-white/5 p-4 pb-8 z-20">
           <form onSubmit={handleSendMessage} className="flex gap-2 max-w-lg mx-auto w-full">
             <Input 
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="beam a response..."
-              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-primary/30 backdrop-blur-md"
+              className="bg-white/10 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-primary/30 backdrop-blur-xl"
             />
             <button 
               type="submit"
@@ -248,12 +255,13 @@ export default function InboxPage() {
           {DUMMY_MESSAGES.map((msg, idx) => (
             <div 
               key={msg.id}
-              className="bg-white/5 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/10 relative overflow-hidden active:scale-[0.98]"
+              className="bg-white/5 backdrop-blur-3xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/10 relative overflow-hidden active:scale-[0.98] cursor-pointer"
               style={{ 
                 animationDelay: `${idx * 100}ms`,
                 borderColor: `hsl(${msg.hue}, 100%, 64%, 0.25)`,
-                boxShadow: msg.unread ? `0 4px 20px -12px hsl(${msg.hue}, 100%, 64%, 0.3)` : 'none'
+                boxShadow: msg.unread ? `0 10px 30px -15px hsl(${msg.hue}, 100%, 64%, 0.4)` : 'none'
               }}
+              onClick={() => setSelectedMessageId(msg.id)}
             >
               {msg.unread && (
                 <div 
@@ -264,7 +272,10 @@ export default function InboxPage() {
 
               <div className="flex gap-4 items-center">
                 <button 
-                  onClick={() => router.push(`/profile/${msg.sender.toLowerCase()}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/profile/${msg.sender.toLowerCase()}`);
+                  }}
                   className="relative w-14 h-14 rounded-full overflow-hidden border-2 flex-shrink-0 transition-transform hover:scale-105 z-10" 
                   style={{ borderColor: `hsl(${msg.hue}, 100%, 64%)` }}
                 >
@@ -277,7 +288,7 @@ export default function InboxPage() {
                   )}
                 </button>
 
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedMessageId(msg.id)}>
+                <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1">
                     <div className="flex items-center gap-1.5">
                       <h3 className="text-[14px] font-bold lowercase tracking-tight" style={{ color: `hsl(${msg.hue}, 100%, 64%)` }}>
@@ -299,7 +310,7 @@ export default function InboxPage() {
           ))}
 
           {DUMMY_MESSAGES.length === 0 && (
-            <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-4 border border-dashed border-white/10 flex flex-col items-center justify-center py-24 gap-6">
+            <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] p-4 border border-dashed border-white/10 flex flex-col items-center justify-center py-24 gap-6">
               <div className="p-5 rounded-full bg-white/5" style={{ boxShadow: `0 0 30px -5px ${userHueColor}44` }}>
                 <Sparkles className="w-10 h-10" style={{ color: userHueColor }} />
               </div>
