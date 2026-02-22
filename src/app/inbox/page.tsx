@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Sparkles, Clock, ShieldCheck, Send, MoreVertical } from 'lucide-react';
-import Link from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/app/page';
-import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -186,10 +185,10 @@ export default function InboxPage() {
             >
               <div 
                 className={cn(
-                  "p-3.5 rounded-2xl text-[14px] lowercase leading-relaxed border backdrop-blur-xl shadow-lg",
+                  "p-3.5 rounded-2xl text-[14px] lowercase leading-relaxed border backdrop-blur-2xl shadow-lg transition-all",
                   msg.isMe 
-                    ? "bg-white/5 border-white/10 text-white rounded-tr-none" 
-                    : "bg-card/40 border-white/5 text-white/90 rounded-tl-none"
+                    ? "bg-white/10 border-white/10 text-white rounded-tr-none" 
+                    : "bg-white/5 border-white/5 text-white/90 rounded-tl-none"
                 )}
                 style={msg.isMe ? { borderRight: `2px solid ${userHueColor}` } : { borderLeft: `2px solid ${senderHueColor}` }}
               >
@@ -210,7 +209,7 @@ export default function InboxPage() {
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="beam a response..."
-              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-primary/30"
+              className="bg-white/5 border-white/10 rounded-xl h-12 text-sm lowercase placeholder:lowercase placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-primary/30 backdrop-blur-md"
             />
             <button 
               type="submit"
@@ -249,10 +248,10 @@ export default function InboxPage() {
           {DUMMY_MESSAGES.map((msg, idx) => (
             <div 
               key={msg.id}
-              className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/5 relative overflow-hidden active:scale-[0.98]"
+              className="bg-white/5 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all animate-fade-in group hover:bg-white/10 relative overflow-hidden active:scale-[0.98]"
               style={{ 
                 animationDelay: `${idx * 100}ms`,
-                borderColor: `hsl(${msg.hue}, 100%, 64%, 0.2)`,
+                borderColor: `hsl(${msg.hue}, 100%, 64%, 0.25)`,
                 boxShadow: msg.unread ? `0 4px 20px -12px hsl(${msg.hue}, 100%, 64%, 0.3)` : 'none'
               }}
             >
@@ -300,7 +299,7 @@ export default function InboxPage() {
           ))}
 
           {DUMMY_MESSAGES.length === 0 && (
-            <div className="bg-white/5 rounded-[2.5rem] p-4 border border-dashed border-white/10 flex flex-col items-center justify-center py-24 gap-6">
+            <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-4 border border-dashed border-white/10 flex flex-col items-center justify-center py-24 gap-6">
               <div className="p-5 rounded-full bg-white/5" style={{ boxShadow: `0 0 30px -5px ${userHueColor}44` }}>
                 <Sparkles className="w-10 h-10" style={{ color: userHueColor }} />
               </div>

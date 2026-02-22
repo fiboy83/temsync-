@@ -114,10 +114,8 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         // user cancelled or share failed
       }
     } else {
-      // Fallback: Copy link to clipboard
       try {
         await navigator.clipboard.writeText(shareData.url);
-        // show a simple visual feedback if needed
       } catch (err) {
         // fallback failed
       }
@@ -261,7 +259,12 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                   <span className="text-[11px] font-bold lowercase" style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}>{comment.username}</span>
                   <span className="text-[10px] text-white/30 font-bold">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}</span>
                 </div>
-                <p className="text-[13px] text-white/80 bg-white/5 p-2.5 rounded-xl border-l-2" style={{ borderLeftColor: `hsl(${comment.themeHue}, 100%, 64%, 0.4)` }}>{comment.text}</p>
+                <div 
+                  className="text-[13px] text-white/80 bg-white/5 backdrop-blur-md p-2.5 rounded-xl border-l-2" 
+                  style={{ borderLeftColor: `hsl(${comment.themeHue}, 100%, 64%, 0.4)` }}
+                >
+                  {comment.text}
+                </div>
               </div>
             ))}
           </div>
@@ -270,7 +273,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               placeholder="beam thoughts..." 
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="h-9 text-[12px] bg-white/10 border-white/10 rounded-xl focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20"
+              className="h-9 text-[12px] bg-white/10 border-white/10 rounded-xl focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20 backdrop-blur-sm"
             />
             <button type="submit" className="h-9 px-5 rounded-xl text-white font-bold text-[11px] lowercase transition-transform active:scale-95" style={{ backgroundColor: hueColor }}>send</button>
           </form>
