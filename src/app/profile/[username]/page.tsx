@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, use } from 'react';
-import { TopNav } from '@/components/TopNav';
-import { BottomNav } from '@/components/BottomNav';
 import { PostCard } from '@/components/PostCard';
-import { ProfileSheet } from '@/components/ProfileSheet';
-import { CreatePostDialog } from '@/components/CreatePostDialog';
 import { Loader2, ArrowLeft, MoreVertical, MapPin, Link as LinkIcon, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -19,8 +15,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const { username } = use(params);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
@@ -67,22 +61,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     loadUserContent();
   }, [username, currentUserProfile.username]);
 
-  const handlePostCreated = (newPost: Post) => {
-    const savedPostsJson = localStorage.getItem(POSTS_STORAGE_KEY);
-    const allPosts = savedPostsJson ? JSON.parse(savedPostsJson) : [];
-    const updatedPosts = [newPost, ...allPosts];
-    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
-    if (newPost.username.toLowerCase() === username.toLowerCase()) {
-      setPosts([newPost, ...posts]);
-    }
-  };
-
   const hueColor = viewedUser ? `hsl(${viewedUser.themeHue}, 100%, 64%)` : 'hsl(var(--primary))';
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
@@ -90,49 +74,47 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const isSelf = viewedUser?.username.toLowerCase() === currentUserProfile.username.toLowerCase();
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
-      <TopNav userProfile={currentUserProfile} onProfileClick={() => setIsProfileOpen(true)} />
-      
-      <div className="relative h-40 w-full overflow-hidden">
+    <main className="min-h-screen pb-12 bg-background">
+      <div className="relative h-48 w-full overflow-hidden">
         <div 
-          className="absolute inset-0 opacity-30 blur-3xl animate-pulse"
+          className="absolute inset-0 opacity-40 blur-3xl animate-pulse"
           style={{ backgroundColor: hueColor }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
         
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
-          <Link href="/" className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white/80 hover:text-white transition-colors">
+        <div className="absolute top-6 left-4 right-4 flex justify-between items-center z-10">
+          <Link href="/" className="p-2.5 bg-black/30 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-black/50 transition-all">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <button className="p-2 bg-black/20 backdrop-blur-md rounded-full border border-white/10 text-white/80 hover:text-white transition-colors">
+          <button className="p-2.5 bg-black/30 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-black/50 transition-all">
             <MoreVertical className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-6 -mt-12 relative z-10 text-left">
-        <div className="flex flex-col gap-4">
+      <div className="max-w-lg mx-auto px-6 -mt-16 relative z-10 text-left">
+        <div className="flex flex-col gap-5">
           <div className="flex justify-between items-end">
-            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
+            <div className="relative w-32 h-32 rounded-full overflow-hidden border-[5px] holographic-glow shadow-2xl" style={{ borderColor: hueColor }}>
               <Image src={viewedUser?.avatar || ''} alt={username} fill className="object-cover" />
             </div>
             
             {!isSelf && (
               <Button 
-                className="rounded-xl h-9 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold lowercase tracking-widest transition-all"
-                style={{ color: hueColor, borderColor: `${hueColor}33` }}
+                className="rounded-2xl h-10 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold lowercase tracking-widest transition-all mb-2"
+                style={{ color: hueColor, borderColor: `${hueColor}44` }}
               >
-                <Send className="w-3.5 h-3.5 mr-2" />
+                <Send className="w-4 h-4 mr-2" />
                 send signal
               </Button>
             )}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
               {username}
             </h1>
-            <p className="text-xs text-white/70 lowercase tracking-[0.3em] font-medium">
+            <p className="text-[10px] text-white/70 lowercase tracking-[0.3em] font-bold">
               synchronized entity
             </p>
           </div>
@@ -141,31 +123,31 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             exploring the holographic horizons of the multiverse. just another digital traveler in the sync stream. ✨
           </p>
 
-          <div className="flex flex-wrap gap-4 pt-2">
-            <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-bold lowercase tracking-widest">
-              <MapPin className="w-3 h-3" style={{ color: hueColor }} />
+          <div className="flex flex-wrap gap-5 pt-3">
+            <div className="flex items-center gap-2 text-[10px] text-white/80 font-bold lowercase tracking-widest">
+              <MapPin className="w-3.5 h-3.5" style={{ color: hueColor }} />
               neo tokyo sector 7
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-bold lowercase tracking-widest">
-              <LinkIcon className="w-3 h-3" style={{ color: hueColor }} />
+            <div className="flex items-center gap-2 text-[10px] text-white/80 font-bold lowercase tracking-widest">
+              <LinkIcon className="w-3.5 h-3.5" style={{ color: hueColor }} />
               temsync.io/{username.toLowerCase()}
             </div>
           </div>
 
-          <div className="flex gap-8 py-3 border-y border-white/5 mt-1">
+          <div className="flex gap-10 py-4 border-y border-white/10 mt-2">
             <div className="flex flex-col">
-              <span className="text-xl font-headline font-bold text-white">{posts.length}</span>
-              <span className="text-[8px] text-white/80 lowercase tracking-widest font-bold">syncs</span>
+              <span className="text-2xl font-headline font-bold text-white">{posts.length}</span>
+              <span className="text-[9px] text-white/70 lowercase tracking-widest font-bold">syncs</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-headline font-bold text-white">1.2k</span>
-              <span className="text-[8px] text-white/80 lowercase tracking-widest font-bold">resonance</span>
+              <span className="text-2xl font-headline font-bold text-white">1.2k</span>
+              <span className="text-[9px] text-white/70 lowercase tracking-widest font-bold">resonance</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 space-y-4">
-          <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/60 mb-4">
+        <div className="mt-10 space-y-4">
+          <h2 className="text-[10px] font-bold lowercase tracking-[0.2em] text-white/50 mb-6">
             recent stream
           </h2>
           
@@ -179,34 +161,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           ))}
 
           {posts.length === 0 && (
-            <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
-              <p className="text-white/40 text-xs italic lowercase">no digital signals found in this timeline.</p>
+            <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+              <p className="text-white/40 text-[10px] italic lowercase tracking-widest">no digital signals found in this timeline.</p>
             </div>
           )}
         </div>
       </div>
-
-      <BottomNav 
-        onPostClick={() => setIsCreatePostOpen(true)}
-        userProfile={currentUserProfile}
-      />
-
-      <ProfileSheet 
-        isOpen={isProfileOpen} 
-        onOpenChange={setIsProfileOpen} 
-        profile={currentUserProfile}
-        onUpdate={(p) => {
-          setCurrentUserProfile(p);
-          localStorage.setItem('temsync_user_profile', JSON.stringify(p));
-        }}
-      />
-
-      <CreatePostDialog
-        isOpen={isCreatePostOpen}
-        onOpenChange={setIsCreatePostOpen}
-        userProfile={currentUserProfile}
-        onPostCreated={handlePostCreated}
-      />
     </main>
   );
 }
