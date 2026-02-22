@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { TopNav } from '@/components/TopNav';
 import { BottomNav } from '@/components/BottomNav';
 import { PostCard } from '@/components/PostCard';
@@ -10,6 +10,8 @@ import { Loader2 } from 'lucide-react';
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [navVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   // Function to change the global theme based on a hue
   const updateGlobalTheme = (hue: number) => {
@@ -26,7 +28,6 @@ export default function Home() {
         const dummyPosts = await generateInitialDummyPosts();
         setPosts(dummyPosts);
         
-        // Initially set theme to match the first post's user
         if (dummyPosts.length > 0) {
           updateGlobalTheme(dummyPosts[0].themeHue);
         }
@@ -37,11 +38,28 @@ export default function Home() {
       }
     }
     loadPosts();
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Scrolling down
+        setNavVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up
+        setNavVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <main className="min-h-screen pt-14 pb-16 md:pt-16 md:pb-20 transition-colors duration-700">
-      <TopNav />
+      <TopNav visible={navVisible} />
       
       <div className="max-w-lg mx-auto px-4 w-full">
         {loading ? (
@@ -71,7 +89,7 @@ export default function Home() {
         )}
       </div>
 
-      <BottomNav />
+      <BottomNav visible={navVisible} />
     </main>
   );
 }
