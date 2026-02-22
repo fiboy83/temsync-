@@ -98,13 +98,12 @@ export default function Home() {
     const updatedPosts = [newPost, ...posts];
     setPosts(updatedPosts);
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
-    // Kita tetap sinkronkan jika user membuat post sendiri karena itu adalah warnanya
     updateGlobalTheme(userProfile.themeHue);
   };
 
   return (
     <main className="min-h-screen pt-12 pb-14 md:pt-14 md:pb-16 transition-colors duration-700">
-      <TopNav visible={navVisible} />
+      <TopNav visible={navVisible} userProfile={userProfile} />
       
       <div className="max-w-lg mx-auto px-4 w-full">
         {loading ? (
@@ -138,6 +137,7 @@ export default function Home() {
         visible={navVisible} 
         onProfileClick={() => setIsProfileOpen(true)} 
         onPostClick={() => setIsCreatePostOpen(true)}
+        userProfile={userProfile}
       />
 
       <ProfileSheet 

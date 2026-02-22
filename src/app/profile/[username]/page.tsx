@@ -28,7 +28,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [viewedUser, setViewedUser] = useState<{ username: string, avatar: string, themeHue: number } | null>(null);
 
   useEffect(() => {
-    // Load current user profile from localStorage
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
       setCurrentUserProfile(JSON.parse(savedProfile));
@@ -42,7 +41,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           const userPosts = allPosts.filter(p => p.username === username);
           setPosts(userPosts);
 
-          // Attempt to find user info from posts if not the current user
           if (username === currentUserProfile.username) {
             setViewedUser(currentUserProfile);
           } else if (userPosts.length > 0) {
@@ -52,7 +50,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               themeHue: userPosts[0].themeHue
             });
           } else {
-            // Fallback for empty profile
             setViewedUser({
               username: username,
               avatar: `https://picsum.photos/seed/${username}/100/100`,
@@ -91,6 +88,8 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
   return (
     <main className="min-h-screen pb-20 bg-background">
+      <TopNav userProfile={currentUserProfile} />
+      
       {/* Header / Banner Area */}
       <div className="relative h-48 w-full overflow-hidden">
         <div 
@@ -186,6 +185,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       <BottomNav 
         onProfileClick={() => setIsProfileOpen(true)} 
         onPostClick={() => setIsCreatePostOpen(true)}
+        userProfile={currentUserProfile}
       />
 
       <ProfileSheet 
