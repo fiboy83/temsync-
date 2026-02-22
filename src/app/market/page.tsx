@@ -1,25 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Loader2, Globe, TrendingUp, ShieldCheck, ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
+import { Sparkles, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/app/page';
 
-interface DexToken {
-  url: string;
-  chainId: string;
-  tokenAddress: string;
-  icon?: string;
-  header?: string;
-  description?: string;
-  links?: { type?: string; label?: string; url: string }[];
-}
-
 export default function MarketPage() {
   const router = useRouter();
-  const [tokens, setTokens] = useState<DexToken[]>([]);
-  const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     username: 'neontraveler',
     avatar: 'https://picsum.photos/seed/me/100/100',
@@ -39,132 +26,56 @@ export default function MarketPage() {
       const parsed = JSON.parse(savedProfile);
       setUserProfile(parsed);
       updateGlobalTheme(parsed.themeHue);
+    } else {
+      updateGlobalTheme(userProfile.themeHue);
     }
-
-    async function fetchMarketData() {
-      try {
-        const response = await fetch('https://api.dexscreener.com/token-boosts/latest/v1');
-        const data = await response.json();
-        setTokens(Array.isArray(data) ? data : []);
-      } catch (error) {
-        // failed to sync market signals
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMarketData();
   }, []);
 
-  const isValidUrl = (url: string | undefined): url is string => {
-    if (!url) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const hueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
-  const hueColorMuted = `hsl(${userProfile.themeHue}, 100%, 64%, 0.15)`;
-  const hueColorDeepMuted = `hsl(${userProfile.themeHue}, 100%, 64%, 0.05)`;
 
   return (
-    <main className="min-h-screen pt-8 pb-10 bg-background">
-      <div className="max-w-lg mx-auto px-4 w-full relative">
+    <main className="min-h-screen pt-8 pb-10 bg-background overflow-hidden relative">
+      {/* Background Aura */}
+      <div 
+        className="absolute top-1/4 -left-20 w-96 h-96 rounded-full opacity-10 blur-[120px] pointer-events-none" 
+        style={{ backgroundColor: hueColor }} 
+      />
+
+      <div className="max-w-lg mx-auto px-4 w-full relative z-10">
         <button 
           onClick={() => router.push('/')}
-          className="absolute top-2 left-4 p-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/60 hover:text-white transition-colors z-10"
+          className="absolute top-2 left-4 p-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/60 hover:text-white transition-all active:scale-90"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <div className="mb-12 mt-12 text-center">
-          <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
+        <div className="mb-20 mt-12 text-center animate-fade-in">
+          <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase tracking-tight">
             market
           </h1>
-          <p className="text-[12px] text-white/50 lowercase tracking-[0.2em] font-bold mt-2">
-            real-time token resonance signals
+          <p className="text-[10px] text-white/40 lowercase tracking-[0.3em] font-bold mt-2">
+            awaiting resonance signals
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="font-headline font-medium tracking-widest uppercase text-[12px] text-primary">
-              decoding signals...
+        <div className="flex flex-col items-center justify-center py-24 gap-6 animate-fade-in">
+          <div 
+            className="p-6 rounded-full bg-white/5 border border-white/5 backdrop-blur-3xl relative group"
+            style={{ boxShadow: `0 0 40px -10px ${hueColor}33` }}
+          >
+            <Sparkles className="w-12 h-12 text-white/20 group-hover:scale-110 transition-transform duration-500" style={{ color: `${hueColor}44` }} />
+            <div className="absolute inset-0 rounded-full animate-pulse opacity-20" style={{ backgroundColor: hueColor }} />
+          </div>
+          
+          <div className="text-center space-y-2">
+            <h3 className="text-sm font-bold text-white/80 lowercase tracking-widest">
+              no signals detected
+            </h3>
+            <p className="text-[11px] text-white/30 lowercase tracking-wider max-w-[240px] mx-auto leading-relaxed">
+              the market frequency is currently silent in this timeline. check back after the next resonance shift.
             </p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {tokens.map((token, idx) => (
-              <div 
-                key={`${token.tokenAddress}-${idx}`}
-                className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all group animate-fade-in"
-                style={{ 
-                  borderColor: hueColorMuted,
-                  boxShadow: `0 4px 25px -12px ${hueColor}33`
-                }}
-              >
-                <div className="flex gap-4">
-                  <div 
-                    className="relative w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border"
-                    style={{ borderColor: hueColorMuted }}
-                  >
-                    {token.icon && isValidUrl(token.icon) ? (
-                      <Image src={token.icon} alt="token" fill className="object-cover transition-transform group-hover:scale-110 duration-500" />
-                    ) : (
-                      <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                        <TrendingUp className="w-7 h-7 text-white/20" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-1.5">
-                      <h3 className="text-[13px] font-bold lowercase truncate transition-colors text-primary">
-                        {token.chainId} signal
-                      </h3>
-                      <div 
-                        className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border"
-                        style={{ borderColor: hueColorDeepMuted }}
-                      >
-                        <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-[10px] font-bold lowercase tracking-tighter text-primary">verified</span>
-                      </div>
-                    </div>
-                    
-                    <p className="text-[11px] text-white/40 font-mono truncate lowercase">
-                      {token.tokenAddress}
-                    </p>
-
-                    {token.description && (
-                      <p className="text-[13px] text-white/70 mt-2 line-clamp-2 leading-relaxed lowercase">
-                        {token.description}
-                      </p>
-                    )}
-
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      <a 
-                        href={token.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all border hover:scale-105 active:scale-95 bg-primary/10"
-                        style={{ 
-                          borderColor: hueColorMuted
-                        }}
-                      >
-                        <Globe className="w-4 h-4 text-primary" />
-                        <span className="text-[11px] font-bold lowercase tracking-wider text-primary">dexscreener</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </main>
   );
