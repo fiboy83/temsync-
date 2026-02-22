@@ -47,6 +47,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
   const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.2)`;
+  const hueColorDeepMuted = `hsl(${post.themeHue}, 100%, 64%, 0.05)`;
   const hueColorGlow = `0 0 25px -5px hsl(${post.themeHue}, 100%, 64%, 0.3)`;
 
   const cardStyle = {
@@ -81,10 +82,10 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
 
   const hasMedia = !!post.imageUrl || !!post.videoUrl;
   const isShortText = post.content.length < 20;
-  const isTooLong = post.content.length > 200; // Diubah ke 200 karakter
+  const isTooLong = post.content.length > 200; 
   
   const displayedContent = isTooLong && !isExpanded 
-    ? `${post.content.substring(0, 200)}...` // Diubah ke 200 karakter
+    ? `${post.content.substring(0, 200)}...` 
     : post.content;
 
   return (
@@ -237,36 +238,59 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
         </button>
       </div>
 
-      {/* Comment Section */}
+      {/* Comment Section with Aura */}
       {showComments && (
-        <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
-          <div className="max-h-48 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left">
+        <div 
+          className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300 border-t"
+          style={{ borderColor: hueColorDeepMuted }}
+        >
+          <div className="max-h-48 overflow-y-auto space-y-4 mb-4 custom-scrollbar text-left scroll-smooth">
             {localComments.map((comment) => (
-              <div key={comment.id} className="flex flex-col gap-1">
-                <div className="flex justify-between items-center">
+              <div key={comment.id} className="flex flex-col gap-1 group/comment">
+                <div className="flex justify-between items-center px-1">
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: hueColor }}>{comment.username}</span>
                   <span className="text-[8px] text-white/20">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
-                <span className="text-xs text-white/70 bg-white/5 p-2 rounded-xl rounded-tl-none border border-white/5">{comment.text}</span>
+                <div 
+                  className="text-xs text-white/70 bg-white/5 p-3 rounded-2xl rounded-tl-none border transition-colors group-hover/comment:bg-white/10"
+                  style={{ borderColor: hueColorMuted }}
+                >
+                  {comment.text}
+                </div>
               </div>
             ))}
             {localComments.length === 0 && (
-              <p className="text-[10px] text-white/20 text-center py-4 italic uppercase tracking-widest">Aura is silent. Sync a thought...</p>
+              <p className="text-[10px] text-white/20 text-center py-6 italic uppercase tracking-widest">
+                Aura is silent. Sync a thought...
+              </p>
             )}
           </div>
           
           <form onSubmit={handleAddComment} className="flex gap-2">
-            <Input 
-              placeholder="Beam your comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="h-10 text-xs bg-white/5 border-white/10 rounded-2xl focus:ring-0 focus:border-white/20"
-            />
+            <div className="relative flex-1">
+              <Input 
+                placeholder="Beam your comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="h-10 text-xs bg-white/5 border-white/10 rounded-2xl focus:ring-1 focus:ring-offset-0 pr-10"
+                style={{ 
+                  '--tw-ring-color': hueColorMuted,
+                  borderColor: newComment.trim() ? hueColorMuted : undefined 
+                } as React.CSSProperties}
+              />
+              <div 
+                className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 opacity-20"
+                style={{ boxShadow: newComment.trim() ? `inset 0 0 10px ${hueColor}` : 'none' }}
+              />
+            </div>
             <Button 
               type="submit" 
               size="icon" 
-              className="h-10 w-10 rounded-2xl shadow-lg transition-transform active:scale-90"
-              style={{ backgroundColor: hueColor }}
+              className="h-10 w-10 rounded-2xl shadow-lg transition-all active:scale-90 disabled:opacity-30"
+              style={{ 
+                backgroundColor: hueColor,
+                boxShadow: newComment.trim() ? `0 4px 12px -2px hsl(${post.themeHue}, 100%, 64%, 0.4)` : 'none'
+              }}
               disabled={!newComment.trim()}
             >
               <Send className="w-4 h-4 text-white" />
