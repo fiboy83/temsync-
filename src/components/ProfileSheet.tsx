@@ -31,15 +31,17 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
     }
   };
 
+  const hueColor = `hsl(${profile.themeHue}, 100%, 64%)`;
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-[2.5rem] bg-card/95 backdrop-blur-2xl border-white/10 h-[80vh] overflow-y-auto">
+      <SheetContent side="bottom" className="rounded-t-[2.5rem] bg-card/95 backdrop-blur-2xl border-white/10 h-[85vh] overflow-y-auto custom-scrollbar">
         <SheetHeader className="mb-8">
           <SheetTitle className="text-2xl font-headline font-bold holographic-text text-center italic lowercase">
             edit sync profile
           </SheetTitle>
-          <SheetDescription className="text-center text-white/70 lowercase tracking-[0.2em] text-[10px]">
-            adjust your digital aura
+          <SheetDescription className="text-center text-white/70 lowercase tracking-[0.2em] text-[10px] font-bold">
+            adjust your digital aura frequency
           </SheetDescription>
         </SheetHeader>
 
@@ -48,8 +50,8 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
           <div className="flex flex-col items-center gap-4">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <div 
-                className="w-32 h-32 rounded-full overflow-hidden border-4 holographic-glow transition-transform active:scale-95"
-                style={{ borderColor: `hsl(${profile.themeHue}, 100%, 64%)` }}
+                className="w-32 h-32 rounded-full overflow-hidden border-4 holographic-glow transition-transform active:scale-95 duration-300"
+                style={{ borderColor: hueColor }}
               >
                 <Image 
                   src={profile.avatar} 
@@ -69,16 +71,17 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
                 onChange={handleAvatarChange}
               />
             </div>
-            <p className="text-[10px] font-bold lowercase tracking-widest text-primary">tap to change avatar</p>
+            <p className="text-[10px] font-bold lowercase tracking-widest" style={{ color: hueColor }}>tap to change avatar</p>
           </div>
 
           {/* Name Section */}
           <div className="space-y-3">
-            <Label className="text-xs lowercase tracking-widest text-white/80 font-bold ml-1">identity tag</Label>
+            <Label className="text-[10px] lowercase tracking-[0.2em] text-white/60 font-bold ml-1">identity tag</Label>
             <Input 
               value={profile.username.toLowerCase()}
               onChange={(e) => onUpdate({ ...profile, username: e.target.value.toLowerCase() })}
-              className="bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary/50 font-medium lowercase"
+              className="bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary/50 font-medium lowercase transition-all"
+              style={{ borderColor: `${hueColor}33` }}
               placeholder="enter your tag..."
             />
           </div>
@@ -86,24 +89,40 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
           {/* Theme Section */}
           <div className="space-y-6">
             <div className="flex justify-between items-end">
-              <Label className="text-xs lowercase tracking-widest text-white/80 font-bold ml-1">aura frequency</Label>
-              <span className="text-[10px] font-mono text-primary font-bold">{profile.themeHue}° hue</span>
+              <Label className="text-[10px] lowercase tracking-[0.2em] text-white/60 font-bold ml-1">aura frequency</Label>
+              <span className="text-[10px] font-mono font-bold tracking-tighter" style={{ color: hueColor }}>{profile.themeHue}° hue</span>
             </div>
-            <Slider 
-              min={0} 
-              max={360} 
-              step={1} 
-              value={[profile.themeHue]} 
-              onValueChange={([val]) => onUpdate({ ...profile, themeHue: val })}
-              className="py-4"
-            />
+            
+            <div className="relative px-1">
+              {/* Spectrum Track Background */}
+              <div 
+                className="absolute inset-x-1 top-1/2 -translate-y-1/2 h-2 rounded-full opacity-80"
+                style={{ 
+                  background: 'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)' 
+                }}
+              />
+              <Slider 
+                min={0} 
+                max={360} 
+                step={1} 
+                value={[profile.themeHue]} 
+                onValueChange={([val]) => onUpdate({ ...profile, themeHue: val })}
+                className="relative z-10 py-4 cursor-pointer"
+              />
+            </div>
+
             <div className="grid grid-cols-6 gap-2">
               {[0, 60, 120, 180, 240, 300].map((h) => (
                 <button
                   key={h}
                   onClick={() => onUpdate({ ...profile, themeHue: h })}
-                  className="h-8 rounded-lg border border-white/10 transition-transform active:scale-90"
-                  style={{ backgroundColor: `hsl(${h}, 100%, 64%)` }}
+                  className="h-10 rounded-xl border-2 transition-all hover:scale-110 active:scale-90"
+                  style={{ 
+                    backgroundColor: `hsl(${h}, 100%, 64%)`,
+                    borderColor: profile.themeHue === h ? 'white' : 'transparent',
+                    boxShadow: profile.themeHue === h ? `0 0 15px hsl(${h}, 100%, 64%, 0.5)` : 'none'
+                  }}
+                  aria-label={`Select hue ${h}`}
                 />
               ))}
             </div>
@@ -111,7 +130,11 @@ export function ProfileSheet({ isOpen, onOpenChange, profile, onUpdate }: Profil
 
           <Button 
             onClick={() => onOpenChange(false)}
-            className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/80 text-white font-headline font-bold text-lg shadow-xl shadow-primary/20 lowercase"
+            className="w-full h-14 rounded-2xl text-white font-headline font-bold text-lg shadow-xl lowercase transition-all active:scale-95"
+            style={{ 
+              backgroundColor: hueColor,
+              boxShadow: `0 10px 30px -10px ${hueColor}66`
+            }}
           >
             <Save className="w-5 h-5 mr-2" />
             sync realities
