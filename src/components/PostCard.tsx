@@ -159,7 +159,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           </div>
         </div>
         
-        {isOwner ? (
+        {isOwner && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-1 text-white/30 hover:text-white transition-colors">
@@ -177,10 +177,6 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <button className="p-1 text-white/30 hover:text-white transition-colors">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
         )}
       </div>
 
