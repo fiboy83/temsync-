@@ -260,8 +260,11 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
                   <span className="text-[10px] text-white/30 font-bold">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}</span>
                 </div>
                 <div 
-                  className="text-[14px] text-white/80 bg-white/10 backdrop-blur-3xl p-3.5 rounded-2xl border-l-3 shadow-xl" 
-                  style={{ borderLeftColor: `hsl(${comment.themeHue}, 100%, 64%, 0.5)`, boxShadow: `0 4px 20px -10px hsl(${comment.themeHue}, 100%, 64%, 0.2)` }}
+                  className="text-[14px] text-white/90 bg-white/10 backdrop-blur-3xl p-3.5 rounded-2xl border border-white/5 shadow-2xl" 
+                  style={{ 
+                    borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%, 0.6)`,
+                    boxShadow: `0 10px 30px -15px hsl(${comment.themeHue}, 100%, 64%, 0.3)` 
+                  }}
                 >
                   {comment.text}
                 </div>
@@ -278,7 +281,13 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               onChange={(e) => setNewComment(e.target.value)}
               className="h-11 text-[13px] bg-white/10 border-white/10 rounded-xl focus:ring-0 lowercase placeholder:lowercase placeholder:text-white/20 backdrop-blur-xl"
             />
-            <button type="submit" className="h-11 px-6 rounded-xl text-white font-bold text-[12px] lowercase transition-all active:scale-95 shadow-lg" style={{ backgroundColor: hueColor }}>send</button>
+            <button 
+              type="submit" 
+              className="h-11 px-6 rounded-xl text-black font-bold text-[12px] lowercase transition-all active:scale-95 shadow-lg bg-primary"
+              style={{ boxShadow: `0 8px 20px -6px ${hueColor}66` }}
+            >
+              send
+            </button>
           </form>
         </div>
       )}
