@@ -30,10 +30,7 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
     const savedPostsJson = localStorage.getItem('temsync_all_posts');
     const allPosts = savedPostsJson ? JSON.parse(savedPostsJson) : [];
     
-    // 1. Cari user
     const userExists = allPosts.some((p: any) => p.username.toLowerCase() === query.toLowerCase().replace('@', ''));
-    
-    // 2. Cari konten feed
     const postExists = allPosts.some((p: any) => p.content.toLowerCase().includes(query.toLowerCase()));
 
     if (userExists) {
@@ -41,12 +38,9 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
       setIsExpanded(false);
       setQuery('');
     } else if (postExists) {
-      // Fokus atau scroll ke feed bisa ditambahkan di masa depan
-      alert(`Signal detected in Temsync feed for "${query}"`);
       setIsExpanded(false);
       setQuery('');
     } else {
-      // 3. Fallback ke Google
       window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
       setIsExpanded(false);
       setQuery('');
@@ -64,12 +58,12 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
       !visible && "-translate-y-[120%]"
     )}>
       <div className={cn(
-        "w-full max-w-lg glass rounded-xl py-1.5 px-3 flex items-center justify-between holographic-glow transition-all duration-300",
+        "w-full max-w-lg glass rounded-xl py-1.5 px-3 flex items-center justify-between holographic-glow transition-all duration-300 relative h-11",
         isExpanded && "ring-1 ring-primary/30"
       )}>
         {/* Search Container */}
         <div className={cn(
-          "flex items-center transition-all duration-500",
+          "flex items-center transition-all duration-500 z-10",
           isExpanded ? "flex-1" : "w-10"
         )}>
           <button 
@@ -110,19 +104,26 @@ export function TopNav({ visible = true, userProfile }: TopNavProps) {
           </form>
         </div>
         
-        {/* Title - Hidden when search is expanded */}
-        {!isExpanded && (
-          <h1 className="absolute left-1/2 -translate-x-1/2 font-headline text-base font-bold holographic-text tracking-tight animate-in fade-in duration-500">
-            temsync
-          </h1>
-        )}
+        {/* Title - Static position, smooth fade */}
+        <h1 className={cn(
+          "absolute left-1/2 -translate-x-1/2 font-headline text-base font-bold holographic-text tracking-tight transition-all duration-300 pointer-events-none",
+          isExpanded ? "opacity-0 scale-95" : "opacity-100 scale-100"
+        )}>
+          temsync
+        </h1>
 
         {/* Action Button */}
-        {!isExpanded && (
-          <button className="p-1.5 hover:bg-white/10 rounded-full transition-colors border flex items-center justify-center shrink-0 ml-auto" style={{ borderColor: `${hueColor}33` }}>
+        <div className={cn(
+          "transition-all duration-300 flex items-center shrink-0 z-10",
+          isExpanded ? "opacity-0 w-0 pointer-events-none overflow-hidden" : "opacity-100 w-auto ml-auto"
+        )}>
+          <button 
+            className="p-1.5 hover:bg-white/10 rounded-full transition-colors border flex items-center justify-center" 
+            style={{ borderColor: `${hueColor}33` }}
+          >
             <Wallet className="w-4 h-4" style={{ color: hueColor }} />
           </button>
-        )}
+        </div>
       </div>
     </nav>
   );
