@@ -42,7 +42,7 @@ export default function MarketPage() {
         const data = await response.json();
         setTokens(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("failed to sync market signals:", error);
+        // failed to sync market signals
       } finally {
         setLoading(false);
       }
@@ -61,60 +61,74 @@ export default function MarketPage() {
     }
   };
 
+  const hueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
+  const hueColorMuted = `hsl(${userProfile.themeHue}, 100%, 64%, 0.15)`;
+  const hueColorDeepMuted = `hsl(${userProfile.themeHue}, 100%, 64%, 0.05)`;
+
   return (
     <main className="min-h-screen pt-14 pb-20 bg-background transition-colors duration-700">
       <TopNav userProfile={userProfile} />
       
       <div className="max-w-lg mx-auto px-4 w-full">
-        <div className="mb-6 mt-4">
-          <h1 className="text-2xl font-headline font-bold holographic-text italic lowercase">
-            market multiverse
+        <div className="mb-8 mt-6 text-center">
+          <h1 className="text-3xl font-headline font-bold holographic-text italic lowercase">
+            market
           </h1>
-          <p className="text-[10px] text-white/60 lowercase tracking-[0.2em] font-bold mt-1">
+          <p className="text-[10px] text-white/50 lowercase tracking-[0.2em] font-bold mt-2">
             real-time token resonance signals
           </p>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <p className="font-headline text-primary font-medium tracking-widest uppercase text-[10px]">
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: hueColor }} />
+            <p className="font-headline font-medium tracking-widest uppercase text-[10px]" style={{ color: hueColor }}>
               decoding signals...
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {tokens.map((token, idx) => (
               <div 
                 key={`${token.tokenAddress}-${idx}`}
-                className="bg-card/30 backdrop-blur-2xl rounded-[1.5rem] p-3 border border-white/5 hover:border-white/10 transition-all group animate-fade-in"
-                style={{ animationDelay: `${idx * 50}ms` }}
+                className="bg-card/30 backdrop-blur-2xl rounded-[1.75rem] p-4 border transition-all group animate-fade-in"
+                style={{ 
+                  animationDelay: `${idx * 50}ms`,
+                  borderColor: hueColorMuted,
+                  boxShadow: `0 4px 20px -10px ${hueColor}22`
+                }}
               >
                 <div className="flex gap-4">
                   {/* Token Icon */}
-                  <div className="relative w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 border border-white/10">
+                  <div 
+                    className="relative w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 border"
+                    style={{ borderColor: hueColorMuted }}
+                  >
                     {token.icon && isValidUrl(token.icon) ? (
-                      <Image src={token.icon} alt="token" fill className="object-cover" />
+                      <Image src={token.icon} alt="token" fill className="object-cover transition-transform group-hover:scale-110 duration-500" />
                     ) : (
                       <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                        <TrendingUp className="w-5 h-5 text-white/20" />
+                        <TrendingUp className="w-6 h-6 text-white/20" />
                       </div>
                     )}
                   </div>
 
                   {/* Token Details */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-sm font-bold text-white lowercase truncate group-hover:text-primary transition-colors">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="text-sm font-bold text-white lowercase truncate group-hover:text-primary transition-colors" style={{ color: hueColor }}>
                         {token.chainId} signal
                       </h3>
-                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border border-white/5">
-                        <ShieldCheck className="w-3 h-3 text-secondary" />
-                        <span className="text-[8px] font-bold text-secondary lowercase tracking-tighter">verified</span>
+                      <div 
+                        className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border"
+                        style={{ borderColor: hueColorDeepMuted }}
+                      >
+                        <ShieldCheck className="w-3 h-3" style={{ color: hueColor }} />
+                        <span className="text-[8px] font-bold lowercase tracking-tighter" style={{ color: hueColor }}>verified</span>
                       </div>
                     </div>
                     
-                    <p className="text-[9px] text-white/40 font-mono mt-0.5 truncate lowercase">
+                    <p className="text-[9px] text-white/30 font-mono truncate lowercase">
                       {token.tokenAddress}
                     </p>
 
@@ -124,15 +138,19 @@ export default function MarketPage() {
                       </p>
                     )}
 
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    <div className="flex flex-wrap gap-2 mt-4">
                       <a 
                         href={token.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors border border-primary/20"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all border hover:scale-105 active:scale-95"
+                        style={{ 
+                          backgroundColor: `${hueColor}11`,
+                          borderColor: hueColorMuted
+                        }}
                       >
-                        <Globe className="w-3 h-3 text-primary" />
-                        <span className="text-[9px] font-bold text-primary lowercase tracking-wider">dexscreener</span>
+                        <Globe className="w-3 h-3" style={{ color: hueColor }} />
+                        <span className="text-[9px] font-bold lowercase tracking-wider" style={{ color: hueColor }}>dexscreener</span>
                       </a>
 
                       {token.links?.map((link, lIdx) => (
@@ -141,7 +159,7 @@ export default function MarketPage() {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/5"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 hover:scale-105 active:scale-95"
                         >
                           <ExternalLink className="w-3 h-3 text-white/40" />
                           <span className="text-[9px] font-bold text-white/60 lowercase tracking-wider">
@@ -156,8 +174,8 @@ export default function MarketPage() {
             ))}
 
             {tokens.length === 0 && (
-              <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
-                <p className="text-white/40 text-xs italic lowercase">no market signals detected in this frequency.</p>
+              <div className="text-center py-20 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
+                <p className="text-white/40 text-xs italic lowercase tracking-widest">no market signals detected in this frequency.</p>
               </div>
             )}
           </div>
