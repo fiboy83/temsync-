@@ -282,7 +282,7 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
               <div className="relative w-9 h-9 rounded-full overflow-hidden border-2" style={{ borderColor: hueColor }}>
                 <Image src={post.profilePicture} alt={post.username} fill className="object-cover" />
               </div>
-              <span className="text-sm font-bold lowercase" style={{ color: hueColor }}>{post.username}</span>
+              <Link href={`/profile/${post.username.toLowerCase()}`} className="text-sm font-bold lowercase hover:underline" style={{ color: hueColor }}>{post.username}</Link>
             </div>
             <button 
               onClick={() => setIsFocusOpen(false)}
@@ -324,20 +324,29 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
             {/* Comments Area */}
             <div className="px-6 pb-24 space-y-6">
               {localComments.map((comment) => (
-                <div key={comment.id} className="flex flex-col gap-2 animate-fade-in">
-                  <div className="flex justify-between items-center px-1">
-                    <span className="text-[12px] font-bold lowercase" style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}>{comment.username}</span>
-                    <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <div 
+                  key={comment.id} 
+                  className="bg-white/5 backdrop-blur-2xl p-4 rounded-2xl border shadow-xl animate-fade-in relative overflow-hidden" 
+                  style={{ 
+                    borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%)`,
+                    borderColor: `hsl(${comment.themeHue}, 100%, 64%, 0.2)`
+                  }}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <Link 
+                      href={`/profile/${comment.username.toLowerCase()}`}
+                      className="text-[12px] font-bold lowercase hover:underline transition-all" 
+                      style={{ color: `hsl(${comment.themeHue}, 100%, 64%)` }}
+                    >
+                      @{comment.username}
+                    </Link>
+                    <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">
+                      {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <div 
-                    className="text-[14px] text-white/90 bg-white/5 backdrop-blur-2xl p-4 rounded-2xl border shadow-xl" 
-                    style={{ 
-                      borderLeft: `4px solid hsl(${comment.themeHue}, 100%, 64%)`,
-                      borderColor: `hsl(${comment.themeHue}, 100%, 64%, 0.2)`
-                    }}
-                  >
+                  <p className="text-[14px] text-white/90 leading-relaxed lowercase">
                     {comment.text}
-                  </div>
+                  </p>
                 </div>
               ))}
               {localComments.length === 0 && (
