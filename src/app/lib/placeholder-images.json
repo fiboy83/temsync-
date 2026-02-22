@@ -1,0 +1,16 @@
+{
+  "placeholderImages": [
+    {
+      "id": "profile-placeholder",
+      "description": "Minimalist abstract avatar with holographic glow",
+      "imageUrl": "https://picsum.photos/seed/1/100/100",
+      "imageHint": "holographic avatar"
+    },
+    {
+      "id": "post-placeholder",
+      "description": "Blurred holographic background",
+      "imageUrl": "https://picsum.photos/seed/2/600/800",
+      "imageHint": "holographic blur"
+    }
+  ]
+}
