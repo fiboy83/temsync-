@@ -100,8 +100,31 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
     }
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: 'temsync signal',
+      text: `${post.username}: ${post.content}`,
+      url: window.location.origin + `/profile/${post.username.toLowerCase()}`,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // user cancelled or share failed
+      }
+    } else {
+      // Fallback: Copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        // show a simple visual feedback if needed
+      } catch (err) {
+        // fallback failed
+      }
+    }
+  };
+
   const hueColor = `hsl(${post.themeHue}, 100%, 64%)`;
-  // Meningkatkan opasitas border dari 0.12 ke 0.3 untuk kontras yang lebih tajam
   const hueColorMuted = `hsl(${post.themeHue}, 100%, 64%, 0.3)`;
   const hueColorGlow = `0 4px 20px -10px hsl(${post.themeHue}, 100%, 64%, 0.3)`;
 
@@ -223,7 +246,9 @@ export function PostCard({ post, index, currentUser }: PostCardProps) {
           <button onClick={toggleBookmark} className="p-1 group/bookmark">
             <Bookmark className={cn("w-5 h-5 transition-all", isBookmarked ? "fill-current scale-110" : "text-white/30 group-hover/bookmark:scale-110")} style={{ color: isBookmarked ? hueColor : undefined }} />
           </button>
-          <button className="p-1 text-white/30 hover:text-white transition-colors"><Share2 className="w-5 h-5" /></button>
+          <button onClick={handleShare} className="p-1 text-white/30 hover:text-white transition-colors">
+            <Share2 className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
