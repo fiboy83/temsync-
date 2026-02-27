@@ -11,9 +11,10 @@ interface TopNavProps {
   visible?: boolean;
   userProfile?: UserProfile;
   onProfileClick?: () => void;
+  onWalletClick?: () => void;
 }
 
-export function TopNav({ visible = true, userProfile, onProfileClick }: TopNavProps) {
+export function TopNav({ visible = true, userProfile, onProfileClick, onWalletClick }: TopNavProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -107,6 +108,7 @@ export function TopNav({ visible = true, userProfile, onProfileClick }: TopNavPr
           isExpanded ? "opacity-0 w-0 pointer-events-none" : "opacity-100 w-auto ml-auto"
         )}>
           <button 
+            onClick={onWalletClick}
             className="p-1.5 hover:bg-white/10 rounded-full transition-all active-scale border flex items-center justify-center" 
             style={{ borderColor: `${hueColor}33` }}
           >
