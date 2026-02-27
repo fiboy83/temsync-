@@ -77,7 +77,8 @@ export function BottomNav({ visible = true, onPostClick, userProfile }: BottomNa
         </Link>
 
         <Link 
-          href="/"
+          href="/swap"
+          prefetch={true}
           className={cn(
             "flex flex-col items-center group py-1 px-2 rounded-xl transition-all active-scale",
             pathname === '/swap' ? "bg-white/5" : "hover:bg-white/5"
