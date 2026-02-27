@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview This file contains the Genkit flow for generating initial dummy social media posts with holographic themes and unique color profiles.
+ * @fileOverview This file contains the Genkit flow for generating initial dummy social media posts with holographic themes.
  */
 
 import { ai } from '@/ai/genkit';
@@ -30,6 +30,42 @@ const PostDraftSchema = z.object({
   timestamp: z.string(),
 });
 
+const FALLBACK_POSTS: Post[] = [
+  {
+    id: 'post-1',
+    username: 'nebula_surfer',
+    profilePicture: 'https://picsum.photos/seed/nebula/100/100',
+    content: 'the resonance shift in the outer rim is reaching critical levels. holographic stabilizers engaged.',
+    imageUrl: 'https://picsum.photos/seed/1/600/800',
+    likes: 124,
+    comments: 12,
+    timestamp: new Date().toISOString(),
+    themeHue: 180,
+  },
+  {
+    id: 'post-2',
+    username: 'digital_ghost',
+    profilePicture: 'https://picsum.photos/seed/ghost/100/100',
+    content: 'synced with the lower timelines today. the frequency is surprisingly calm.',
+    imageUrl: 'https://picsum.photos/seed/2/600/800',
+    likes: 89,
+    comments: 5,
+    timestamp: new Date().toISOString(),
+    themeHue: 280,
+  },
+  {
+    id: 'post-3',
+    username: 'photon_dancer',
+    profilePicture: 'https://picsum.photos/seed/photon/100/100',
+    content: 'broadcasted a new aura frequency. can you feel the pulse?',
+    imageUrl: 'https://picsum.photos/seed/3/600/800',
+    likes: 245,
+    comments: 34,
+    timestamp: new Date().toISOString(),
+    themeHue: 45,
+  }
+];
+
 const generateInitialDummyPostsFlow = ai.defineFlow(
   {
     name: 'generateInitialDummyPostsFlow',
@@ -37,40 +73,48 @@ const generateInitialDummyPostsFlow = ai.defineFlow(
     outputSchema: z.array(PostSchema),
   },
   async () => {
-    const { output } = await ai.generate({
-      prompt: 'Generate 5 unique social media post ideas for a futuristic holographic app called "temsync". Use ethereal, digital, and space-age themes.',
-      output: {
-        schema: z.object({ posts: z.array(PostDraftSchema) })
-      }
-    });
-
-    if (!output?.posts) {
-      throw new Error('Failed to generate post drafts.');
-    }
-
-    const posts: Post[] = [];
-
-    for (const draft of output.posts) {
-      // Assign a consistent hue based on username string to simulate profile color
-      let hash = 0;
-      for (let i = 0; i < draft.username.length; i++) {
-        hash = draft.username.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      const themeHue = Math.abs(hash % 360);
-
-      const mainImageUrl = `https://picsum.photos/seed/${draft.id}/600/800`;
-      const profileImageUrl = `https://picsum.photos/seed/${draft.username}/100/100`;
-
-      posts.push({
-        ...draft,
-        profilePicture: profileImageUrl,
-        content: draft.postContent,
-        imageUrl: mainImageUrl,
-        themeHue: themeHue,
+    try {
+      // Set a short timeout for the AI generation to prevent server hangs
+      const generationPromise = ai.generate({
+        prompt: 'Generate 5 unique social media post ideas for a futuristic holographic app called "temsync". Use ethereal, digital, and space-age themes.',
+        output: {
+          schema: z.object({ posts: z.array(PostDraftSchema) })
+        }
       });
-    }
 
-    return posts;
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('AI Generation Timeout')), 8000)
+      );
+
+      const { output } = await (Promise.race([generationPromise, timeoutPromise]) as any);
+
+      if (!output?.posts) {
+        return FALLBACK_POSTS;
+      }
+
+      const posts: Post[] = [];
+
+      for (const draft of output.posts) {
+        let hash = 0;
+        for (let i = 0; i < draft.username.length; i++) {
+          hash = draft.username.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const themeHue = Math.abs(hash % 360);
+
+        posts.push({
+          ...draft,
+          profilePicture: `https://picsum.photos/seed/${draft.username}/100/100`,
+          content: draft.postContent,
+          imageUrl: `https://picsum.photos/seed/${draft.id}/600/800`,
+          themeHue: themeHue,
+        });
+      }
+
+      return posts;
+    } catch (error) {
+      console.error('AI Flow failed, using fallbacks:', error);
+      return FALLBACK_POSTS;
+    }
   }
 );
 

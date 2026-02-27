@@ -34,6 +34,7 @@ export default function Home() {
   const lastScrollY = useRef(0);
 
   const updateGlobalTheme = (hue: number) => {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
     root.style.setProperty('--primary', `${hue} 100% 64%`);
     root.style.setProperty('--secondary', `${(hue + 180) % 360} 100% 50%`);
@@ -49,6 +50,7 @@ export default function Home() {
       if (savedPostsJson) {
         allPosts = JSON.parse(savedPostsJson);
       } else {
+        // Only call AI generation if no posts are stored
         const dummyPosts = await generateInitialDummyPosts();
         allPosts = dummyPosts.map(p => ({ ...p, isArchived: false }));
         localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(allPosts));
@@ -63,11 +65,16 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Hydration-safe localStorage access
     const savedProfile = localStorage.getItem('temsync_user_profile');
     if (savedProfile) {
-      const parsed = JSON.parse(savedProfile);
-      setUserProfile(parsed);
-      updateGlobalTheme(parsed.themeHue);
+      try {
+        const parsed = JSON.parse(savedProfile);
+        setUserProfile(parsed);
+        updateGlobalTheme(parsed.themeHue);
+      } catch (e) {
+        updateGlobalTheme(userProfile.themeHue);
+      }
     } else {
       updateGlobalTheme(userProfile.themeHue);
     }
@@ -123,14 +130,18 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-4">
-            {posts.map((post, index) => (
+            {posts.length > 0 ? posts.map((post, index) => (
               <PostCard 
                 key={post.id} 
                 post={post} 
                 index={index} 
                 currentUser={userProfile}
               />
-            ))}
+            )) : (
+              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <p className="text-white/30 text-xs lowercase tracking-widest">no signals found in this timeline.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
