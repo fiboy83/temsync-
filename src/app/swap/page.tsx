@@ -8,10 +8,13 @@ import {
   TOKENS,
   ERC20_ABI,
   FAROSWAP_ROUTER,
-  FAROSWAP_ABI,
+  DODO_ROUTE_API,
+  PHAROS_CHAIN_ID,
+  NATIVE_TOKEN_ADDRESS,
   PHAROS_ATLANTIC_TESTNET,
   Token,
 } from '@/lib/pharos-config';
+import type { DODORouteData } from '@/lib/pharos-config';
 import { ethers } from 'ethers';
 import { cn } from '@/lib/utils';
 import {
@@ -23,7 +26,6 @@ import {
   ExternalLink,
   Check,
   AlertTriangle,
-  X,
   Zap,
   RefreshCw,
 } from 'lucide-react';
@@ -43,7 +45,6 @@ import type { UserProfile } from '@/app/page';
 // ---------------------------------------------------------------------------
 const SLIPPAGE_DEFAULT = 0.5; // 0.5%
 const DEADLINE_MINUTES = 20;
-const WPHRS_TOKEN = TOKENS.find((t) => t.symbol === 'WPHRS')!;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -65,6 +66,14 @@ function shortenAddress(addr: string): string {
 
 function explorerTxUrl(hash: string): string {
   return `${PHAROS_ATLANTIC_TESTNET.explorerUrl}/tx/${hash}`;
+}
+
+/**
+ * Resolve token address for DODO API.
+ * Native PHRS -> 0xEeee...EEeE (DODO native placeholder)
+ */
+function toDODOAddress(token: Token): string {
+  return token.address === 'native' ? NATIVE_TOKEN_ADDRESS : token.address;
 }
 
 // ---------------------------------------------------------------------------
@@ -307,6 +316,9 @@ export default function SwapPage() {
   const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
   const [slippage, setSlippage] = useState(SLIPPAGE_DEFAULT);
 
+  // ---- DODO Route data (quote + encoded calldata) ----
+  const [routeData, setRouteData] = useState<DODORouteData | null>(null);
+
   // ---- Token selector modals ----
   const [fromSelectorOpen, setFromSelectorOpen] = useState(false);
   const [toSelectorOpen, setToSelectorOpen] = useState(false);
@@ -345,6 +357,7 @@ export default function SwapPage() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hueColor = `hsl(${userProfile.themeHue}, 100%, 64%)`;
@@ -384,45 +397,66 @@ export default function SwapPage() {
   }, [refreshBalances]);
 
   // ---------------------------------------------------------------------------
-  // Get swap path: for native PHRS we route through WPHRS
-  // ---------------------------------------------------------------------------
-  function getSwapPath(from: Token, to: Token): string[] {
-    const fromAddr =
-      from.address === 'native' ? WPHRS_TOKEN.address : from.address;
-    const toAddr =
-      to.address === 'native' ? WPHRS_TOKEN.address : to.address;
-    return [fromAddr, toAddr];
-  }
-
-  // ---------------------------------------------------------------------------
-  // Estimate output (getAmountsOut)
+  // Fetch quote from DODO Route API (replaces broken getAmountsOut)
   // ---------------------------------------------------------------------------
   const fetchQuote = useCallback(
     async (amount: string, from: Token, to: Token) => {
       if (!provider || !amount || parseFloat(amount) <= 0) {
         setToAmount('');
+        setRouteData(null);
         return;
       }
       setIsEstimating(true);
       setErrorMsg(null);
       try {
-        const router = new ethers.Contract(FAROSWAP_ROUTER, FAROSWAP_ABI, provider);
         const amountIn = ethers.parseUnits(amount, from.decimals);
-        const path = getSwapPath(from, to);
-        const amounts: bigint[] = await router.getAmountsOut(amountIn, path);
-        const amountOut = amounts[amounts.length - 1];
-        setToAmount(ethers.formatUnits(amountOut, to.decimals));
+        const fromAddr = toDODOAddress(from);
+        const toAddr = toDODOAddress(to);
+
+        const params = new URLSearchParams({
+          fromTokenAddress: fromAddr,
+          toTokenAddress: toAddr,
+          fromAmount: amountIn.toString(),
+          slippage: (slippage / 100).toString(),
+          userAddr: account || ethers.ZeroAddress,
+          chainId: PHAROS_CHAIN_ID.toString(),
+          rpc: PHAROS_ATLANTIC_TESTNET.rpcUrl,
+          deadLine: String(Math.floor(Date.now() / 1000) + DEADLINE_MINUTES * 60),
+        });
+
+        const res = await fetch(`${DODO_ROUTE_API}?${params.toString()}`);
+        const json = await res.json();
+
+        if (json.status === 200 && json.data) {
+          const data = json.data;
+          setToAmount(data.resAmount);
+          setRouteData({
+            resAmount: data.resAmount,
+            to: data.to,
+            data: data.data,
+            targetApproveAddr: data.targetApproveAddr,
+            estimatedGas: data.estimatedGas,
+          });
+        } else {
+          // API returned an error or no route
+          setErrorMsg('no route found for this pair');
+          setToAmount('');
+          setRouteData(null);
+        }
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : String(err);
-        if (errMsg.includes('INSUFFICIENT_LIQUIDITY') || errMsg.includes('revert')) {
-          setErrorMsg('insufficient liquidity for this trade');
+        if (errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError')) {
+          setErrorMsg('network error -- check your connection');
+        } else {
+          setErrorMsg('quote failed -- please try again');
         }
         setToAmount('');
+        setRouteData(null);
       } finally {
         setIsEstimating(false);
       }
     },
-    [provider]
+    [provider, account, slippage]
   );
 
   // Debounced quote
@@ -430,6 +464,7 @@ export default function SwapPage() {
     if (quoteTimerRef.current) clearTimeout(quoteTimerRef.current);
     if (!fromAmount || parseFloat(fromAmount) <= 0) {
       setToAmount('');
+      setRouteData(null);
       return;
     }
     quoteTimerRef.current = setTimeout(() => {
@@ -442,6 +477,7 @@ export default function SwapPage() {
 
   // ---------------------------------------------------------------------------
   // Check allowance for ERC20 tokens
+  // Now checks against routeData.targetApproveAddr (the actual spender)
   // ---------------------------------------------------------------------------
   const checkAllowance = useCallback(async () => {
     if (!provider || !account || fromToken.address === 'native') {
@@ -453,29 +489,32 @@ export default function SwapPage() {
       return;
     }
     try {
+      // Use targetApproveAddr from route data if available, fallback to router
+      const spender = routeData?.targetApproveAddr || FAROSWAP_ROUTER;
       const contract = new ethers.Contract(fromToken.address, ERC20_ABI, provider);
-      const allowance: bigint = await contract.allowance(account, FAROSWAP_ROUTER);
+      const allowance: bigint = await contract.allowance(account, spender);
       const required = ethers.parseUnits(fromAmount, fromToken.decimals);
       setNeedsApproval(allowance < required);
     } catch {
       setNeedsApproval(false);
     }
-  }, [provider, account, fromToken, fromAmount]);
+  }, [provider, account, fromToken, fromAmount, routeData]);
 
   useEffect(() => {
     checkAllowance();
   }, [checkAllowance]);
 
   // ---------------------------------------------------------------------------
-  // Approve ERC20
+  // Approve ERC20 -- approve to targetApproveAddr from route data
   // ---------------------------------------------------------------------------
   async function handleApprove() {
     if (!signer) return;
     setIsApproving(true);
     setErrorMsg(null);
     try {
+      const spender = routeData?.targetApproveAddr || FAROSWAP_ROUTER;
       const contract = new ethers.Contract(fromToken.address, ERC20_ABI, signer);
-      const tx = await contract.approve(FAROSWAP_ROUTER, ethers.MaxUint256);
+      const tx = await contract.approve(spender, ethers.MaxUint256);
       await tx.wait();
       setNeedsApproval(false);
     } catch (err: unknown) {
@@ -483,7 +522,7 @@ export default function SwapPage() {
       if (errMsg.includes('user rejected') || errMsg.includes('ACTION_REJECTED')) {
         setErrorMsg('transaction rejected by user');
       } else {
-        setErrorMsg('approval failed — please try again');
+        setErrorMsg('approval failed -- please try again');
       }
     } finally {
       setIsApproving(false);
@@ -491,53 +530,46 @@ export default function SwapPage() {
   }
 
   // ---------------------------------------------------------------------------
-  // Execute swap
+  // Execute swap via DODO Route calldata (replaces broken direct mixSwap call)
   // ---------------------------------------------------------------------------
   async function handleSwap() {
-    if (!signer || !account) return;
+    if (!signer || !account || !routeData) return;
     setIsSwapping(true);
     setErrorMsg(null);
     try {
-      const routerContract = new ethers.Contract(FAROSWAP_ROUTER, FAROSWAP_ABI, signer);
+      // For native PHRS, send the input amount as tx value
+      const isNativeFrom = fromToken.address === 'native';
       const amountIn = ethers.parseUnits(fromAmount, fromToken.decimals);
-      const path = getSwapPath(fromToken, toToken);
-      const deadline = Math.floor(Date.now() / 1000) + DEADLINE_MINUTES * 60;
 
-      // Minimum output with slippage
-      const estimatedOut = ethers.parseUnits(toAmount || '0', toToken.decimals);
-      const slippageBps = BigInt(Math.floor(slippage * 100));
-      const amountOutMin = estimatedOut - (estimatedOut * slippageBps) / 10000n;
-
-      // If fromToken is native PHRS, send value with the tx
-      const txOverrides =
-        fromToken.address === 'native' ? { value: amountIn } : {};
-
-      const tx = await routerContract.mixSwap(
-        path,
-        amountIn,
-        amountOutMin,
-        account,
-        deadline,
-        txOverrides
-      );
+      const tx = await signer.sendTransaction({
+        to: routeData.to,
+        data: routeData.data,
+        value: isNativeFrom ? amountIn : 0n,
+        gasLimit: routeData.estimatedGas
+          ? BigInt(Math.ceil(Number(routeData.estimatedGas) * 1.3)) // 30% gas buffer
+          : 500000n,
+      });
       await tx.wait();
 
       setSuccessTxHash(tx.hash);
       setFromAmount('');
       setToAmount('');
+      setRouteData(null);
       refreshBalances();
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg.includes('user rejected') || errMsg.includes('ACTION_REJECTED')) {
         setErrorMsg('transaction rejected by user');
-      } else if (errMsg.includes('INSUFFICIENT_OUTPUT_AMOUNT')) {
+      } else if (errMsg.includes('INSUFFICIENT_OUTPUT_AMOUNT') || errMsg.includes('minReturn')) {
         setErrorMsg('price moved beyond slippage tolerance');
       } else if (errMsg.includes('INSUFFICIENT_LIQUIDITY')) {
         setErrorMsg('insufficient liquidity for this trade');
-      } else if (errMsg.includes('TRANSFER_FROM_FAILED')) {
+      } else if (errMsg.includes('TRANSFER_FROM_FAILED') || errMsg.includes('STF')) {
         setErrorMsg('insufficient balance or allowance');
+      } else if (errMsg.includes('execution reverted')) {
+        setErrorMsg('swap reverted -- try increasing slippage or reducing amount');
       } else {
-        setErrorMsg('swap failed — please try again');
+        setErrorMsg('swap failed -- please try again');
       }
     } finally {
       setIsSwapping(false);
@@ -556,6 +588,7 @@ export default function SwapPage() {
     setToBalance(fromBalance);
     setNeedsApproval(false);
     setErrorMsg(null);
+    setRouteData(null); // Clear stale route data on flip
   }
 
   // ---------------------------------------------------------------------------
@@ -618,9 +651,9 @@ export default function SwapPage() {
         };
       }
     }
-    if (errorMsg && errorMsg.includes('insufficient liquidity')) {
+    if (errorMsg && (errorMsg.includes('insufficient liquidity') || errorMsg.includes('no route'))) {
       return {
-        label: 'insufficient liquidity',
+        label: errorMsg.includes('no route') ? 'no route found' : 'insufficient liquidity',
         disabled: true,
         onClick: () => {},
         variant: 'error',
@@ -637,7 +670,7 @@ export default function SwapPage() {
     }
     return {
       label: isSwapping ? 'swapping...' : 'swap',
-      disabled: isSwapping || isEstimating || !toAmount,
+      disabled: isSwapping || isEstimating || !toAmount || !routeData,
       onClick: handleSwap,
       variant: 'swap',
       loading: isSwapping,
@@ -956,6 +989,7 @@ export default function SwapPage() {
           setFromToken(t);
           setFromBalance(null);
           setErrorMsg(null);
+          setRouteData(null);
         }}
         hueColor={hueColor}
       />
@@ -969,6 +1003,7 @@ export default function SwapPage() {
           setToToken(t);
           setToBalance(null);
           setErrorMsg(null);
+          setRouteData(null);
         }}
         hueColor={hueColor}
       />
